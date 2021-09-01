@@ -1,0 +1,26 @@
+.login-box, .register-box {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 17%);
+}
+.card {
+  margin-top: 1rem;
+}
+aside.main-sidebar.sidebar-dark-primary {
+    background-color: #0B5345;
+}
+nav.main-header {
+  background-color: #bad4b6;
+}
+.bg-info {
+  background-color: #18616d!important;
+}
+.bg-warning {
+  background-color: #c59e28!important;
+}
+.bg-success {
+  background-color: #188430!important;
+}
+.bg-danger {
+  background-color: #a0202c!important;
+}

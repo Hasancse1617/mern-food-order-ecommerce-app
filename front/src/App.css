@@ -1,0 +1,16 @@
+body{
+  background-color: #fff;
+}
+.single_category.active{
+  color: red;
+}
+.preload .preloader-inner{
+  opacity: 0.8;
+}
+
+.widget_filter input {
+  width: 90px;
+}
+.single-item-wrap .wrap-details .wrap-footer .price {
+  font-size: 17px;
+}

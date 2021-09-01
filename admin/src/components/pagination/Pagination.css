@@ -1,0 +1,21 @@
+/* .pagination li{
+   width: 30px;
+   height: 30px;
+   border: 2px solid green;
+   margin-right: 2px;
+   text-align: center;
+   background: chocolate;
+   color: black;
+} */
+.pagination li a {
+    padding: 5px;
+    background: #e4d9d9;
+    margin-right: 5px;
+    border: 2px solid green;
+    color: black;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.pagination li a.active{
+    background: cadetblue;
+}
