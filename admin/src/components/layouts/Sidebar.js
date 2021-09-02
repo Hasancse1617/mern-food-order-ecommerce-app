@@ -91,9 +91,9 @@ const Sidebar = () => {
                             </NavLink>
                         </li>
                         <li className="nav-item">
-                            <NavLink exact to="/admin/blog/all?page=1" activeClassName="active" className={ pathname==='/admin/blog/create' || pathname.includes('/admin/blog/edit/') ?'nav-link active':'nav-link'}>
+                            <NavLink exact to="/admin/post/all?page=1" activeClassName="active" className={ pathname==='/admin/post/create' || pathname.includes('/admin/post/edit/') ?'nav-link active':'nav-link'}>
                             <i className="far fa-circle nav-icon"></i>
-                            <p>Blogs</p>
+                            <p>Posts</p>
                             </NavLink>
                         </li>                           
                         </ul>

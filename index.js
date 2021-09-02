@@ -4,6 +4,7 @@ require('dotenv').config();
 const userRoute = require('./routes/admin/UserRoute');
 const categoryRoute = require('./routes/admin/CategoryRoute');
 const productRoute = require('./routes/admin/ProductRoute');
+const postRoute = require('./routes/admin/PostRoute');
 const bodyParser = require('body-parser');
 const frontCate = require('./routes/front/CategoryRoute');
 const fronProduct = require('./routes/front/ProductRoute');
@@ -24,6 +25,7 @@ app.use(bodyParser.json());
 app.use('/', userRoute);
 app.use('/', categoryRoute);
 app.use('/', productRoute);
+app.use('/', postRoute);
 app.use('/front', frontCate);
 app.use('/front', fronProduct);
 

@@ -5,7 +5,7 @@ import UserReducer from './reducers/UserReducer';
 import AuthReducer from './reducers/AuthReducer';
 import CategoryReducer from './reducers/CategoryReducer';
 import ProductReducer from './reducers/ProductReducer';
-import BlogReducer from './reducers/BlogReducer';
+import PostReducer from './reducers/PostReducer';
 
 
 const rootReducers = combineReducers({
@@ -13,7 +13,7 @@ const rootReducers = combineReducers({
      AuthReducer,
      CategoryReducer,
      ProductReducer,
-     BlogReducer,
+     PostReducer,
 });
 const middlewares = [thunkMiddleware];
 const Store = createStore(rootReducers, composeWithDevTools( applyMiddleware(...middlewares)));

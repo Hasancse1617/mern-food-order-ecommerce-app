@@ -6,7 +6,7 @@ import Footer from "../components/layouts/Footer";
 import UserRoute from "../components/user/UserRoute";
 import CategoryRoute from "../components/category/CategoryRoute";
 import ProductRoute from "../components/product/ProductRoute";
-import BlogRoute from "../components/blog/BlogRoute";
+import PostRoute from "../components/post/PostRoute";
 
 const DashboardRoute = () => {
     const { path } = useRouteMatch();
@@ -19,7 +19,7 @@ const DashboardRoute = () => {
                 <Route path={`${path}/user`} component={UserRoute}></Route>
                 <Route path={`${path}/category`} component={CategoryRoute}></Route>
                 <Route path={`${path}/product`} component={ProductRoute}></Route>
-                <Route path={`${path}/blog`} component={BlogRoute}></Route>
+                <Route path={`${path}/post`} component={PostRoute}></Route>
             </Switch>
             <Footer/>
         </>
