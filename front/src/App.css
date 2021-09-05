@@ -1,5 +1,5 @@
 body{
-  background-color: #fff;
+  background-color: #faf7f2;
 }
 .single_category.active{
   color: red;
@@ -13,4 +13,54 @@ body{
 }
 .single-item-wrap .wrap-details .wrap-footer .price {
   font-size: 17px;
+}
+.widget.widget_categories ul li a.active{
+   color: red;
+}
+.image-height img{
+  width: 100%;
+  height: 460px;
+}
+.login-box{
+  background: #d8baba;
+  padding: 20px;
+  border-radius: 10px;
+  padding-top: 40px;
+}
+.login-box .btn.btn-primary{
+  height: 38px;
+  width: 100px;
+  padding: 0;
+  border-radius: 10px;
+  font-size: 18px;
+  line-height: 0;
+}
+button.active-account {
+  border: navajowhite;
+  background: none;
+  font-size: 40px;
+  font-weight: bold;
+  padding-bottom: 20px;
+}
+.media-body{
+  width: 100%;
+}
+.reply-comment,.reply-reply-comment{
+  display: none;
+}
+.media.reply {
+  margin-left: 50px;
+}
+.reply-reply-comment.reply{
+  margin-left: 50px;
+}
+.media img{
+  width: 80px;
+}
+.media.reply img{
+  width: 60px;
+}
+.variation select {
+  padding: 10px;
+  border-radius: 8px;
 }

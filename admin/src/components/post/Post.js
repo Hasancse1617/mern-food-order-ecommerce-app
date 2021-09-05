@@ -83,6 +83,7 @@ class Post extends Component{
                         <tr>
                           <th>SL.</th>
                           <th>Post Title</th>
+                          <th>Category</th>
                           <th>Post Image</th>
                           <th>Status</th>
                           <th>Action</th>
@@ -96,6 +97,7 @@ class Post extends Component{
                                 <tr key={post._id}>
                                 <td>{ index+1}</td>
                                 <td>{ post.title }</td>
+                                <td>{ post.category_id.category_name }</td>
                                 <td><img width="100" src={`/images/post_images/${post.image}`}/></td>
                                 <td>
                                     {

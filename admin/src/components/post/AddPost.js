@@ -3,8 +3,9 @@ import { Component } from "react";
 import { Helmet } from "react-helmet";
 import toast, {Toaster} from "react-hot-toast";
 import { NavLink } from "react-router-dom";
-import { createAction } from "../../store/actions/PostAction";
+import { createAction, fetchcategories } from "../../store/actions/PostAction";
 import { REMOVE_POST_ERRORS } from "../../store/types/PostType";
+import ProductReducer from "../../store/reducers/ProductReducer";
 
 class AddPost extends Component{
     constructor(props){
@@ -12,6 +13,7 @@ class AddPost extends Component{
         this.state={
             title:'',
             url:'',
+            category:'',
             image:'',
             description:'',
             preview:'',
@@ -44,6 +46,9 @@ class AddPost extends Component{
             reader.readAsDataURL(e.target.files[0]);
         }
     }
+    componentDidMount = () =>{
+        this.props.dispatch(fetchcategories());
+    }
     componentDidUpdate(){
         if(this.props.redirect){
             this.props.history.push('/admin/post/all?page=1');
@@ -57,16 +62,18 @@ class AddPost extends Component{
     }
     createPost = (e) =>{
         e.preventDefault();
-        const {title,url,description,image} = this.state;
+        const {title,url,description,image,category} = this.state;
         const formData = new FormData();
         formData.append('title',title);
         formData.append('image',image);
         formData.append('description',description);
         formData.append('url', url);
+        formData.append('category', category);
         this.props.dispatch(createAction(formData));
     }
     render(){
         const { preview, title, url, description } = this.state;
+        const categories = this.props.categories;
         return(
             <div class="content-wrapper">
             <Helmet>
@@ -95,6 +102,17 @@ class AddPost extends Component{
                             <label for="exampleInputEmail1" className="col-sm-2  col-form-label">Url</label>
                             <div className="col-sm-8">
                             <input type="text" name="url" value={url} class="form-control" id="exampleInputEmail1" placeholder="Enter url" readOnly/>
+                            </div> 
+                        </div>
+                        <div class="form-group row">
+                            <label for="exampleInputEmail1" className="col-sm-2  col-form-label">Category</label>
+                            <div className="col-sm-8">
+                            <select name="category"  class="form-control" onChange={this.handleInput}>
+                                <option value="" disabled selected>Select Category</option>
+                                {categories? categories.map((category)=>(
+                                   <option key={category._id} value={category._id}> { category.category_name } </option>
+                                )):''}
+                            </select>
                             </div> 
                         </div>
                         <div class="form-group row">
@@ -132,7 +150,7 @@ class AddPost extends Component{
     }
 }
 const mapStateToProps = (state) =>{
-    const {postErrors, redirect} = state.PostReducer;
-    return{ postErrors, redirect };
+    const {postErrors, redirect, categories} = state.PostReducer;
+    return{ postErrors, redirect, categories};
 }
 export default connect(mapStateToProps)(AddPost);

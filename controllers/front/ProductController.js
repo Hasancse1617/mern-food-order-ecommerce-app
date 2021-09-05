@@ -1,6 +1,7 @@
 const Category = require("../../models/Category");
 const Product = require("../../models/Product");
 const ProductAttribute = require("../../models/ProductAttribute");
+const Cart = require("../../models/Cart");
 
 module.exports.allProduct = async(req, res) =>{
     const { sorting, url, page, min, max } = req.body;
@@ -132,5 +133,33 @@ module.exports.sizePrice = async(req, res) =>{
         return res.status(200).json({ price });
     } catch (error) {
         return res.status(500).json({errors: [{msg: error.message}]});
+    }
+}
+
+module.exports.addToCart = async(req,res) =>{
+    const { user_id, code, size, quantity } = req.body;
+    const product = await Product.findOne({product_code:code});
+    const errors = [];
+    if(size === ''){
+        errors.push({msg: 'Size is required'});
+    }
+    const cart = await Cart.findOne({customer_id: user_id, product_id: product._id});
+    if(cart){
+        errors.push({msg: 'Product is already exists in your cart!!!'});
+    }
+    if(errors.length !== 0){
+        return res.status(400).json({errors});
+    }else{
+        try {
+            const response = await Cart.create({
+                customer_id: user_id,
+                product_id: product._id,
+                size,
+                quantity
+            });
+            return res.status(200).json({msg: 'Product added successfully'});
+        } catch (error) {
+            return res.status(500).json({errors: [{msg: error.message}]});
+        }
     }
 }

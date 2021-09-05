@@ -7,7 +7,9 @@ const productRoute = require('./routes/admin/ProductRoute');
 const postRoute = require('./routes/admin/PostRoute');
 const bodyParser = require('body-parser');
 const frontCate = require('./routes/front/CategoryRoute');
-const fronProduct = require('./routes/front/ProductRoute');
+const frontProduct = require('./routes/front/ProductRoute');
+const frontPost = require('./routes/front/PostRoute');
+const frontUser = require('./routes/front/UserRoute');
 
 
 const app = express();//Connect express
@@ -27,7 +29,9 @@ app.use('/', categoryRoute);
 app.use('/', productRoute);
 app.use('/', postRoute);
 app.use('/front', frontCate);
-app.use('/front', fronProduct);
+app.use('/front', frontProduct);
+app.use('/front', frontPost);
+app.use('/front', frontUser);
 
 
 const PORT = process.env.PORT || 5000;

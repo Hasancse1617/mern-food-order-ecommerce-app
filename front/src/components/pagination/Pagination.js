@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 
-const Pagination = ({page,perPage,count,pageLink}) => {
+const Pagination = ({page,perPage,count,pageLink,search}) => {
     let totalPages = Math.ceil(count / perPage);
     let startloop;
     let endloop;
@@ -23,7 +23,7 @@ const Pagination = ({page,perPage,count,pageLink}) => {
     const links = () =>{
         const store = [];
         for (let i = startloop; i <= endloop; i++) {
-            store.push(<li key={i} className={`${i==page?"page-item active":"page-item"}`}><Link  className="page-link"  to={`${pageLink}?page=${i}`}>{i}</Link></li>);
+            store.push(<li key={i} className={`${i==page?"page-item active":"page-item"}`}>{search === null ? <Link  className="page-link"  to={`${pageLink}?page=${i}`}>{i}</Link> : <Link  className="page-link"  to={`${pageLink}?search=${search}&page=${i}`}>{i}</Link>}</li>);
         }
         return store;
     }
@@ -31,7 +31,7 @@ const Pagination = ({page,perPage,count,pageLink}) => {
         if(parseInt(page) < totalPages){
             return (
                <li className="page-item">
-                   <Link to={`${pageLink}?page=${parseInt(page) + 1 }`} className="page-link"  ><i className="ri-arrow-right-s-line"></i></Link>
+                   {search === null ?<Link to={`${pageLink}?page=${parseInt(page) + 1 }`} className="page-link"  ><i className="ri-arrow-right-s-line"></i></Link>:<Link to={`${pageLink}?search=${search}&page=${parseInt(page) + 1 }`} className="page-link"  ><i className="ri-arrow-right-s-line"></i></Link>}
                </li>
             );
         }
@@ -40,11 +40,12 @@ const Pagination = ({page,perPage,count,pageLink}) => {
         if(parseInt(page) > 1){
             return (
                <li className="page-item">
-                   <Link  to={`${pageLink}?page=${parseInt(page) - 1 }`} className="page-link" ><i className="ri-arrow-left-s-line"></i></Link>
+                   {search === null ?<Link  to={`${pageLink}?page=${parseInt(page) - 1 }`} className="page-link" ><i className="ri-arrow-left-s-line"></i></Link>:<Link  to={`${pageLink}?search=${search}&page=${parseInt(page) - 1 }`} className="page-link" ><i className="ri-arrow-left-s-line"></i></Link>}
                </li>
             );
         }
     }
+    console.log('sea',search);
     return (
         <nav className="text-end">
             <ul className="pagination">

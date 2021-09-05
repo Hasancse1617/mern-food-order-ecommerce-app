@@ -1,4 +1,4 @@
-import { REMOVE_PRODUCT_LOADER, SET_HOT_PRODUCTS, SET_PRICE, SET_PRODUCTS, SET_PRODUCT_LOADER, SET_RELATED_PRODUCT, SET_SINGLE_PRODUCT } from "../types/ProductType"
+import { REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_LOADER, REMOVE_PRODUCT_MESSAGE, SET_HOT_PRODUCTS, SET_PRICE, SET_PRODUCTS, SET_PRODUCT_ERRORS, SET_PRODUCT_LOADER, SET_PRODUCT_MESSAGE, SET_RELATED_PRODUCT, SET_SINGLE_PRODUCT } from "../types/ProductType"
 
 const initState = {
     loading: false,
@@ -9,6 +9,8 @@ const initState = {
     product: [],
     relatedproducts: [],
     attrprice: 0,
+    productErrors: [],
+    message: "",
 }
 
 const ProductReducer = (state=initState, action) =>{
@@ -32,6 +34,18 @@ const ProductReducer = (state=initState, action) =>{
     }
     else if(action.type === SET_PRICE){
         return{...state, attrprice: action.payload}
+    }
+    else if(action.type === SET_PRODUCT_ERRORS){
+        return{...state, productErrors: action.payload}
+    }
+    else if(action.type === REMOVE_PRODUCT_ERRORS){
+        return{...state, productErrors: []}
+    }
+    else if(action.type === SET_PRODUCT_MESSAGE){
+        return{...state, message: action.payload}
+    }
+    else if(action.type === REMOVE_PRODUCT_MESSAGE){
+        return{...state, message: ''}
     }
     else{
         return state;

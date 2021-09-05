@@ -1,4 +1,4 @@
-import { REMOVE_SINGLE_POST, REMOVE_POST_ERRORS, REMOVE_POST_LOADER, REMOVE_POST_MESSAGE, REMOVE_POST_REDIRECT, SET_SINGLE_POST, SET_POSTS, SET_POST_ERRORS, SET_POST_LOADER, SET_POST_MESSAGE, SET_POST_REDIRECT, POST_STATUS } from "../types/PostType";
+import { REMOVE_SINGLE_POST, REMOVE_POST_ERRORS, REMOVE_POST_LOADER, REMOVE_POST_MESSAGE, REMOVE_POST_REDIRECT, SET_SINGLE_POST, SET_POSTS, SET_POST_ERRORS, SET_POST_LOADER, SET_POST_MESSAGE, SET_POST_REDIRECT, SET_POST_CATEGORIES } from "../types/PostType";
 
 const initState = {
     loading: false,
@@ -11,8 +11,7 @@ const initState = {
     perPage: '',
     pageLink: '',
     status: false,
-    post_status: false,
-    postId: 0,
+    categories: [],
 }
 
 const PostReducer = (state=initState, action) =>{
@@ -47,10 +46,10 @@ const PostReducer = (state=initState, action) =>{
         return{...state, post: action.payload, status: true };
     }
     else if(action.type === REMOVE_SINGLE_POST){
-        return{...state, post: [], status: false };
+        return{...state, status: false };
     }
-    else if(action.type === POST_STATUS){
-        return{...state, post_status: action.payload.status, postId: action.payload.post_id}
+    else if(action.type === SET_POST_CATEGORIES){
+        return{...state, categories: action.payload };
     }
     else{
         return state;

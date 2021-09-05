@@ -1,16 +1,21 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useParams } from "react-router-dom";
-import { fetchSingle, relatedProducts, sizeToPrice } from "../../store/actions/ProductAction";
+import { fetchSingle, relatedProducts, sizeToPrice, addToCartAction } from "../../store/actions/ProductAction";
 import Loader from "../loader/Loader";
 import loadjs from "loadjs";
+import Swal from 'sweetalert2';
+import toast, {Toaster} from "react-hot-toast";
+import { REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_MESSAGE } from "../../store/types/ProductType";
 
 const ShopSingle = () => {
     const { code } = useParams();
     const dispatch = useDispatch();
     const [quantity, setQuantity] = useState(1);
     const [size, setSize] = useState('');
-    const { product, loading, relatedproducts, attrprice } = useSelector((state)=>state.ProductReducer);
+    const [htmlloading, setHtmlLoading] = useState(true);
+    const { user } = useSelector((state)=>state.UserReducer);
+    const { product, loading, relatedproducts, attrprice, productErrors, message } = useSelector((state)=>state.ProductReducer);
     const selectSize = (e) =>{
         setSize(e.target.value);
         dispatch(sizeToPrice(code, e.target.value));
@@ -28,8 +33,15 @@ const ShopSingle = () => {
     }
     const addToCart = (e) =>{
         e.preventDefault();
-        console.log(size,quantity);
+        if(!user){
+            toast.error('Please Login to add product');
+            return false;
+        }
+        dispatch(addToCartAction({user_id: user._id, code, size, quantity}));
     }
+    useEffect(()=>{
+        setHtmlLoading(false);
+    },[]);
     useEffect(()=>{
         dispatch(fetchSingle(code));
         dispatch(relatedProducts(code));
@@ -37,13 +49,32 @@ const ShopSingle = () => {
     useEffect(()=>{
         loadjs('/assets/js/main.js',()=>{});
     },[relatedproducts]);
-    return (
-        <>
-            {loading ? <Loader/>:<>
+    useEffect(()=>{
+        if(message){
+            Swal.fire({
+              position: 'top-end',
+              icon: 'success',
+              title: message,
+              toast: true,
+              showConfirmButton: false,
+              timer: 5000
+            })
+            dispatch({type: REMOVE_PRODUCT_MESSAGE});
+        }
+        if(productErrors.length > 0){
+            productErrors.map((error)=>{
+                toast.error(error.msg);
+            });
+            dispatch({type: REMOVE_PRODUCT_ERRORS});
+        }
+    },[productErrors,message]);
+    return !htmlloading? (
+        <><Toaster position="top-right" reverseOrder={true}/>
+            {loading ? <Loader/>:''}
             <div class="shop-details-area pd-top-100">
                 <div class="container">
                     <div class="row justify-content-center">
-                        <div class="col-md-6">
+                        {!loading?<div class="col-md-6">
                             <div class="sticy-product">
                                 <div class="product-thumbnail-wrapper">
                                     {product.images?<div class="single-thumbnail-slider">
@@ -62,7 +93,7 @@ const ShopSingle = () => {
                                     </div>:''}
                                 </div>
                             </div>
-                        </div>
+                        </div>:''}
                         <div class="col-md-6">
                             <div class="shop-item-details">
                                 <nav>
@@ -181,7 +212,7 @@ const ShopSingle = () => {
                     </div>
                 </div>
             </div>
-            <section class="related-product-area pd-top-120">
+            {!loading?<section class="related-product-area pd-top-120">
                 <div class="container">
                     <div class="row justify-content-center">
                         <div class="col-lg-12">
@@ -229,9 +260,9 @@ const ShopSingle = () => {
                         </div>
                     </div>
                 </div>
-            </section></>}
+            </section>:''}
         </>
-    );
+    ):''
 }
 
 export default ShopSingle;

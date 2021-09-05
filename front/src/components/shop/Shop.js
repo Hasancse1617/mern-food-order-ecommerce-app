@@ -16,6 +16,7 @@ const Shop = (props) => {
     const [sorting, setSorting] = useState('');
     const [min, setMin] = useState(0);
     const [max, setMax] = useState(0);
+    const [htmlloading, setHtmlLoading] = useState(true);
     const { categories } = useSelector((state)=>state.CategoryReducer);
     const { products, loading, count, perPage, hotProducts } = useSelector((state)=>state.ProductReducer);
     const sortingChange = (e) =>{
@@ -34,17 +35,21 @@ const Shop = (props) => {
     useEffect(()=>{
         setMin(0);
         setMax(0);
-        scrollRef.current.scrollIntoView();
+        if(!htmlloading){
+            scrollRef.current.scrollIntoView();
+        }
     },[url]);
     useEffect(()=>{
-        scrollRef.current.scrollIntoView();
+        if(!htmlloading){
+            scrollRef.current.scrollIntoView();
+        }
     },[page]);
     useEffect(()=>{
-        window.scrollTo(0,0);
+        setHtmlLoading(false);
         dispatch(fetchCategories());
         dispatch(hotdealsProducts());
     },[]);
-    return (
+    return !htmlloading? (
         <> 
            {loading ? <Loader/> :''}  
             <section className="breadcrumb-area">
@@ -200,7 +205,7 @@ const Shop = (props) => {
                 </div>
             </section>
         </>
-    );
+    ):''
 }
 
 export default Shop;

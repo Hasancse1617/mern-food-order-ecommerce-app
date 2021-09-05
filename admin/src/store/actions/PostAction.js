@@ -1,4 +1,4 @@
-import { REMOVE_POST_ERRORS, REMOVE_POST_LOADER, SET_POSTS, SET_POST_ERRORS, SET_POST_LOADER, SET_POST_MESSAGE, SET_POST_REDIRECT, SET_SINGLE_POST } from "../types/PostType";
+import { SET_POST_CATEGORIES, REMOVE_POST_ERRORS, REMOVE_POST_LOADER, SET_POSTS, SET_POST_ERRORS, SET_POST_LOADER, SET_POST_MESSAGE, SET_POST_REDIRECT, SET_SINGLE_POST } from "../types/PostType";
 import axiosInstance from "../../helper/axiosInstance";
 import $ from 'jquery';
 
@@ -18,6 +18,23 @@ export const fetchPosts = (page) =>{
           }
     }
 }
+
+export const fetchcategories = () =>{
+      return async(dispatch,getState)=>{
+            dispatch({type: SET_POST_LOADER});
+            try {
+                  const {data: { response }} = await axiosInstance.get(`/categories`);
+                  
+                  dispatch({type: SET_POST_CATEGORIES, payload: response});
+                  dispatch({type: REMOVE_POST_LOADER});
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_POST_LOADER});
+                  dispatch({type: SET_POST_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+  }
 
 export const createAction = (postData) =>{
     return async(dispatch,getState)=>{

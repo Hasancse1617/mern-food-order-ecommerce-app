@@ -2,10 +2,16 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { fetchCategories } from "../../store/actions/CategoryAction";
+import { LOGOUT } from "../../store/types/UserType";
 
 const Header = () => {
     const dispatch = useDispatch();
     const { categories } = useSelector((state)=>state.CategoryReducer);
+    const { user } = useSelector((state)=>state.UserReducer);
+    const logout = () =>{
+        localStorage.removeItem('userToken');
+        dispatch({type: LOGOUT});
+    }
     useEffect(()=>{
         dispatch(fetchCategories());
     },[]);
@@ -63,6 +69,9 @@ const Header = () => {
                                     <a href="about.html">ABOUT US</a>
                                 </li>
                                 <li>
+                                    <NavLink to={`/post?page=1`}>BLOG</NavLink>
+                                </li>
+                                <li>
                                     <a href="contact.html">CONTACTS</a>
                                 </li>
                             </ul>
@@ -88,8 +97,12 @@ const Header = () => {
                                 <li className="phone-contact"><i className="ri-phone-fill float-start"></i>
                                     +997 509 153 849
                                 </li>
-                                <li className="menu-cart"><a href="cart.html">CART <span>1</span></a></li>
-                                <li>49.50 $</li>
+                                { !user ? <li><NavLink to={`/user/login`}>Login</NavLink></li>:
+                                <>
+                                    <li className="menu-cart"><NavLink to={`/shop/cart`}>CART <span>1</span></NavLink></li>
+                                    <li>0.00 $</li>
+                                    <li><a href="#" onClick={logout}>Logout</a></li>
+                                </>}
                             </ul>
                         </div>
                     </div>

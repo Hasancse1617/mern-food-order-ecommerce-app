@@ -4,7 +4,7 @@ import { Helmet } from "react-helmet";
 import toast, {Toaster} from "react-hot-toast";
 import { NavLink } from "react-router-dom";
 import Loader from "../loader/Loader";
-import { fetchPost, updateAction } from "../../store/actions/PostAction";
+import { fetchPost, updateAction, fetchcategories } from "../../store/actions/PostAction";
 import { REMOVE_POST_ERRORS, REMOVE_SINGLE_POST } from "../../store/types/PostType";
 
 class EditPost extends Component{
@@ -13,6 +13,7 @@ class EditPost extends Component{
         this.state={
             title:'',
             url:'',
+            category:'',
             image:'',
             description:'',
             preview:'',
@@ -47,8 +48,8 @@ class EditPost extends Component{
     }
     componentDidMount = () =>{
         const id = this.props.match.params.id;
-        console.log(this.props)
         this.props.dispatch(fetchPost(id));
+        this.props.dispatch(fetchcategories());
     }
     componentDidUpdate = () =>{
         const {post,status,redirect,postErrors} = this.props.state;
@@ -75,17 +76,18 @@ class EditPost extends Component{
     updatePost = (e) =>{
         e.preventDefault();
         const id = this.props.match.params.id;
-        const {title,url,description,image} = this.state;
+        const {title,url,description,image,category} = this.state;
         const formData = new FormData();
         formData.append('title',title);
         formData.append('image',image);
         formData.append('description',description);
         formData.append('url', url);
+        formData.append('category', category);
         this.props.dispatch(updateAction(formData,id));
     }
     render(){
         const { preview, title, url, description } = this.state;
-        const {loading,redirect} = this.props.state;
+        const {loading,categories,post} = this.props.state;
         return(
             <div class="content-wrapper">
             <Helmet>
@@ -114,6 +116,17 @@ class EditPost extends Component{
                             <label for="exampleInputEmail1" className="col-sm-2  col-form-label">Url</label>
                             <div className="col-sm-8">
                             <input type="text" name="url" value={url} class="form-control" id="exampleInputEmail1" placeholder="Enter url" readOnly/>
+                            </div> 
+                        </div>
+                        <div class="form-group row">
+                            <label for="exampleInputEmail1" className="col-sm-2  col-form-label">Category</label>
+                            <div className="col-sm-8">
+                            <select name="category"  class="form-control" onChange={this.handleInput}>
+                                <option value="" disabled selected>Select Category</option>
+                                {categories? categories.map((category)=>(
+                                   <option key={category._id} value={category._id} selected={category._id===post.category_id}> { category.category_name } </option>
+                                )):''}
+                            </select>
                             </div> 
                         </div>
                         <div class="form-group row">

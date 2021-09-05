@@ -1,9 +1,10 @@
 const app = require('express');
-const { createPost, allPost, statusPost, editPost, updatePost, deletePost } = require('../../controllers/admin/PostController');
+const { createPost, categories, allPost, statusPost, editPost, updatePost, deletePost } = require('../../controllers/admin/PostController');
 const router = app.Router();
 const auth = require('../../utils/auth');
 
 router.get("/all-post/:page", auth, allPost);
+router.get("/categories", auth, categories);
 router.post("/create-post", auth, createPost);
 router.get("/edit-post/:id", auth, editPost);
 router.post("/update-post/:id", auth, updatePost);

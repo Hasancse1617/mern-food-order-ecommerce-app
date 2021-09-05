@@ -9,6 +9,10 @@ const postSchema = new Schema({
         type: String,
         required: true
     },
+    category_id:{
+        type: Schema.Types.ObjectId,
+        ref: 'category'
+    },
     description:{
         type: String,
         required: true

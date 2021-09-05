@@ -1,16 +1,21 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from "../../store/actions/CategoryAction";
+import { fetchPosts } from "../../store/actions/PostAction";
 import { NavLink } from 'react-router-dom';
+import moment from 'moment';
 
 const Dashboard = () => {
     const dispatch = useDispatch();
     const { categories } = useSelector((state)=>state.CategoryReducer);
+    const { posts } = useSelector((state)=>state.PostReducer);
+    const [htmlloading, setHtmlLoading] = useState(true);
     useEffect(()=>{
-        window.scrollTo(0,0);
+        setHtmlLoading(false);
         dispatch(fetchCategories());
+        dispatch(fetchPosts());
     },[]);
-    return (
+    return !htmlloading? (
         <>
             <section className="banner-area">
                 <div className="banner-thumb">
@@ -281,9 +286,9 @@ const Dashboard = () => {
                         {categories.map((category, index)=>(
                             <div className={index==0?'tab-pane fade show active':'tab-pane fade'} id={`pills-${category.url}`} role="tabpanel" aria-labelledby={`pills-${category.url}-tab`}>
                                 <div className="row justify-content-center">
-                                    {category.products.map((product)=>(
-                                        <div className="col-lg-4 col-md-6">
-                                        <div className="single-item-wrap">
+                                    {category.products.map((product,index)=>(
+                                        index < 6? <div className="col-lg-4 col-md-6">
+                                          <div className="single-item-wrap">
                                             <div className="thumb">
                                                 <img src={`/images/product_images/${product.product_image}`} alt="img"/>
                                                 <a className="fav-btn" href="#"><i className="ri-heart-line"></i></a>
@@ -309,7 +314,7 @@ const Dashboard = () => {
                                                 <NavLink className="btn btn-secondary" to={`/shop/single/${product.product_code}`}>CHOOSE OPTIONS </NavLink>         
                                             </div> 
                                         </div>
-                                    </div>
+                                    </div>: ''
                                     ))}
                                 </div>
                             </div>  ))};
@@ -381,82 +386,38 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="row justify-content-center">
+
+                        {posts.map((post,index)=>(
+                         index < 3?
                         <div className="col-lg-4 col-md-6">
                             <div className="single-blog-wrap">
                                 <div className="thumb">
-                                    <img src="assets/img/blog/1.png" alt="img"/>
+                                    <img src={`/images/post_images/${post.image}`} alt="img"/>
                                 </div>
                                 <div className="wrap-details">
                                     <span className="cat">
                                         <span className="date">
-                                            <i className="ri-calendar-todo-fill"></i>July 14, 2021
+                                            <i className="ri-calendar-todo-fill"></i>{moment(post.createdAt).format('MMMM D, YYYY')}
                                         </span>
-                                        <a href="#" className="tag me-0">
-                                            <i className="ri-price-tag-3-fill"></i>Burgar
-                                        </a>
+                                        <NavLink to={`/post/${post.category_id.url}`} className="tag me-0">
+                                            <i className="ri-price-tag-3-fill"></i>{ post.category_id.category_name }
+                                        </NavLink>
                                     </span>
-                                    <h5><a href="blog-details.html">Greek yogurt breakfast bowls with toppings</a></h5> 
+                                    <h5><NavLink to={`/post/single/${post.url}`}>{ post.title }</NavLink></h5> 
                                     <div className="wrap-hover-area">
-                                        <p> It with just a touch of sauce. saucy riff, more in the style of takeout American Chinese kung pao. The sauce makes it perfect for eating with rice.
+                                        <p> { post.description.substr(0, 150) }
                                         </p> 
-                                        <a className="link-btn" href="blog-details.html">Read More</a> 
+                                        <NavLink className="link-btn" to={`/post/single/${post.url}`}>Read More</NavLink> 
                                     </div>                       
                                 </div> 
                             </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                            <div className="single-blog-wrap">
-                                <div className="thumb">
-                                    <img src="assets/img/blog/2.png" alt="img"/>
-                                </div>
-                                <div className="wrap-details">
-                                    <span className="cat">
-                                        <span className="date">
-                                            <i className="ri-calendar-todo-fill"></i>July 05, 2021
-                                        </span>
-                                        <a href="#" className="tag me-0">
-                                            <i className="ri-price-tag-3-fill"></i>Pizza
-                                        </a>
-                                    </span>
-                                    <h5><a href="blog-details.html">Broad beans, tomato, garlic & cheese bruschetta
-                                    </a></h5> 
-                                    <div className="wrap-hover-area">
-                                        <p> It with just a touch of sauce. saucy riff, more in the style of takeout American Chinese kung pao. The sauce makes it perfect for eating with rice.
-                                        </p> 
-                                        <a className="link-btn" href="blog-details.html">Read More</a> 
-                                    </div>                       
-                                </div> 
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                            <div className="single-blog-wrap">
-                                <div className="thumb">
-                                    <img src="assets/img/blog/3.png" alt="img"/>
-                                </div>
-                                <div className="wrap-details">
-                                    <span className="cat">
-                                        <span className="date">
-                                            <i className="ri-calendar-todo-fill"></i>August 14, 2021
-                                        </span>
-                                        <a href="#" className="tag me-0">
-                                            <i className="ri-price-tag-3-fill"></i>Pizza
-                                        </a>
-                                    </span>
-                                    <h5><a href="blog-details.html">Make authentic Italian margherita pizza at home
-                                    </a></h5> 
-                                    <div className="wrap-hover-area">
-                                        <p> It with just a touch of sauce. saucy riff, more in the style of takeout American Chinese kung pao. The sauce makes it perfect for eating with rice.
-                                        </p> 
-                                        <a className="link-btn" href="blog-details.html">Read More</a> 
-                                    </div>                       
-                                </div> 
-                            </div>
-                        </div>
+                        </div>:''))}
+
                     </div>
                 </div>
             </section>
         </>
-    );
+    ):''
 }
 
 export default Dashboard;
