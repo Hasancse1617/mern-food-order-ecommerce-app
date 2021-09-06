@@ -95,7 +95,13 @@ const Sidebar = () => {
                             <i className="far fa-circle nav-icon"></i>
                             <p>Posts</p>
                             </NavLink>
-                        </li>                           
+                        </li>
+                        <li className="nav-item">
+                            <NavLink exact to="/admin/coupon/all?page=1" activeClassName="active" className={ pathname==='/admin/coupon/create' || pathname.includes('/admin/coupon/edit/') ?'nav-link active':'nav-link'}>
+                            <i className="far fa-circle nav-icon"></i>
+                            <p>Coupons</p>
+                            </NavLink>
+                        </li>                             
                         </ul>
                     </li>
                     </ul>

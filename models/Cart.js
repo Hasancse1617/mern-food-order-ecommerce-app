@@ -1,4 +1,6 @@
 const { model, Schema } = require('mongoose');
+var mongoose = require('mongoose');
+var Float = require('mongoose-float').loadType(mongoose);
 
 const cartSchema = new Schema({
     customer_id:{
@@ -15,6 +17,10 @@ const cartSchema = new Schema({
     },
     quantity:{
         type: Number,
+        required: true
+    },
+    attr_price:{
+        type: Float,
         required: true
     }
 }, {timestamps: true} );

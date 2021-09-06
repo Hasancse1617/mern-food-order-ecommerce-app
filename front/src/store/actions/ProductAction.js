@@ -1,5 +1,5 @@
 import axiosInstance from '../../helper/axiosInstance';
-import { REMOVE_PRODUCT_LOADER, SET_HOT_PRODUCTS, SET_PRICE, SET_PRODUCTS, SET_PRODUCT_ERRORS, SET_PRODUCT_LOADER, SET_PRODUCT_MESSAGE, SET_RELATED_PRODUCT, SET_SINGLE_PRODUCT } from '../types/ProductType';
+import { REMOVE_PRODUCT_LOADER, SET_CART_ITEMS, SET_HOT_PRODUCTS, SET_PRICE, SET_PRODUCTS, SET_PRODUCT_ERRORS, SET_PRODUCT_LOADER, SET_PRODUCT_MESSAGE, SET_RELATED_PRODUCT, SET_SINGLE_PRODUCT } from '../types/ProductType';
 
 export const fetchProducts = (sortingdata) =>{
     return async(dispatch,getState)=>{
@@ -101,3 +101,51 @@ export const hotdealsProducts = () =>{
             }
       }
   }
+
+  export const fetchCartItems = (userId) =>{
+      return async(dispatch,getState)=>{
+            // dispatch({type: SET_PRODUCT_LOADER});
+            try {
+                  const {data: {response}} = await axiosInstance.get(`/front/fetch-cart-items/${userId}`);
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+                  dispatch({type: SET_CART_ITEMS, payload: response});
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+                  dispatch({type: SET_PRODUCT_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+  }
+
+export const updateCartItem = (state) =>{
+      return async(dispatch,getState)=>{
+            dispatch({type: SET_PRODUCT_LOADER});
+            try {
+                  const {data: {msg}} = await axiosInstance.post(`/front/update-cart-item`, state);
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+                  dispatch({type: SET_PRODUCT_MESSAGE, payload: msg});
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+                  dispatch({type: SET_PRODUCT_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+}
+
+export const deleteCartItem = (cartId) =>{
+      return async(dispatch,getState)=>{
+            dispatch({type: SET_PRODUCT_LOADER});
+            try {
+                  const {data: {msg}} = await axiosInstance.get(`/front/delete-cart-item/${cartId}`);
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+                  dispatch({type: SET_PRODUCT_MESSAGE, payload: msg});
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+                  dispatch({type: SET_PRODUCT_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+}

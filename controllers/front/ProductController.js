@@ -2,6 +2,7 @@ const Category = require("../../models/Category");
 const Product = require("../../models/Product");
 const ProductAttribute = require("../../models/ProductAttribute");
 const Cart = require("../../models/Cart");
+const Customer = require("../../models/Customer");
 
 module.exports.allProduct = async(req, res) =>{
     const { sorting, url, page, min, max } = req.body;
@@ -137,16 +138,22 @@ module.exports.sizePrice = async(req, res) =>{
 }
 
 module.exports.addToCart = async(req,res) =>{
-    const { user_id, code, size, quantity } = req.body;
+    const { user_id, code, size, quantity, attrprice } = req.body;
     const product = await Product.findOne({product_code:code});
     const errors = [];
     if(size === ''){
         errors.push({msg: 'Size is required'});
+    }else{
+        const cart = await Cart.findOne({customer_id: user_id, product_id: product._id, size});
+        if(cart){
+            errors.push({msg: 'Product is already exists in your cart!!!'});
+        }
+        const attr = await ProductAttribute.findOne({product_id: product._id, size});
+        if(attr.stock < quantity){
+            errors.push({msg: 'Required Quantity is not available'});
+        }
     }
-    const cart = await Cart.findOne({customer_id: user_id, product_id: product._id});
-    if(cart){
-        errors.push({msg: 'Product is already exists in your cart!!!'});
-    }
+    
     if(errors.length !== 0){
         return res.status(400).json({errors});
     }else{
@@ -155,11 +162,54 @@ module.exports.addToCart = async(req,res) =>{
                 customer_id: user_id,
                 product_id: product._id,
                 size,
-                quantity
+                quantity,
+                attr_price: attrprice
             });
             return res.status(200).json({msg: 'Product added successfully'});
         } catch (error) {
             return res.status(500).json({errors: [{msg: error.message}]});
         }
+    }
+}
+
+module.exports.fetchCartItems = async(req,res) =>{
+    const userId = req.params.userId;
+    try {
+        const response = await Cart.find({customer_id: userId}).populate('product_id').sort({createdAt:'descending'});
+        return res.status(200).json({ response });
+    } catch (error) {
+        return res.status(500).json({errors: [{msg: error.message}]});
+    }
+}
+
+module.exports.updateCartItem = async(req,res) =>{
+    const { cartId, quantity, product_id, size } = req.body;
+    const attrproduct = await ProductAttribute.findOne({product_id, size});
+    const errors = [];
+    if(attrproduct.stock < quantity){
+        errors.push({msg: 'Required Quantity is not available'});
+    }
+    if(quantity < 1){
+        errors.push({msg: 'Quantity must be greater than 1'});
+    }
+    if(errors.length !== 0){
+        return res.status(400).json({errors});
+    }else{
+        try {
+            const response = await Cart.findByIdAndUpdate({_id:cartId},{quantity});
+            return res.status(200).json({ msg: 'Cart updated successfully'});
+        } catch (error) {
+            return res.status(500).json({errors: [{msg: error.message}]});
+        }
+    }
+}
+
+module.exports.deleteCartItem = async(req,res) =>{
+    const cartId = req.params.cartId;
+    try {
+        const response = await Cart.findByIdAndDelete({_id:cartId});
+        return res.status(200).json({ msg: 'Cart deleted successfully'});
+    } catch (error) {
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }

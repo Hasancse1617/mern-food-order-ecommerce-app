@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useParams, useHistory } from "react-router-dom";
 import { fetchSingle, relatedProducts, sizeToPrice, addToCartAction } from "../../store/actions/ProductAction";
 import Loader from "../loader/Loader";
 import loadjs from "loadjs";
@@ -10,6 +10,7 @@ import { REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_MESSAGE } from "../../store/types
 
 const ShopSingle = () => {
     const { code } = useParams();
+    const history = useHistory();
     const dispatch = useDispatch();
     const [quantity, setQuantity] = useState(1);
     const [size, setSize] = useState('');
@@ -37,7 +38,7 @@ const ShopSingle = () => {
             toast.error('Please Login to add product');
             return false;
         }
-        dispatch(addToCartAction({user_id: user._id, code, size, quantity}));
+        dispatch(addToCartAction({user_id: user._id, code, size, quantity, attrprice}));
     }
     useEffect(()=>{
         setHtmlLoading(false);
@@ -60,6 +61,7 @@ const ShopSingle = () => {
               timer: 5000
             })
             dispatch({type: REMOVE_PRODUCT_MESSAGE});
+            history.push("/shop/cart");
         }
         if(productErrors.length > 0){
             productErrors.map((error)=>{

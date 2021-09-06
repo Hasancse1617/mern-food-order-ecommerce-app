@@ -14,7 +14,7 @@ module.exports.allCategory = async(req, res) =>{
         const response = await Category.find().skip(skip).limit(perPage).sort({updatedAt:'descending'});
         return res.status(200).json({response: response, count, perPage});
     } catch (error) {
-        return res.status(500).json({errors: error, msg: error.message});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
