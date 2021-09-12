@@ -1,7 +1,7 @@
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import store from '../store';
-// import { LOGOUT } from '../store/types/AuthType';
+import { LOGOUT } from '../store/types/UserType';
 
   const defaultOptions = {
     headers: {
@@ -17,7 +17,7 @@ import store from '../store';
     const expiresIn = new Date(decodeToken.exp * 1000);
     if (new Date() > expiresIn) {
       localStorage.removeItem('myToken');
-      // store.dispatch({type: LOGOUT});
+      store.dispatch({type: LOGOUT});
       return null;
     } else {
       return decodeToken;
@@ -30,7 +30,7 @@ import store from '../store';
     if(token){
       const verify = VerifyToken(token);
     }else{
-      //  store.dispatch({type: LOGOUT});
+       store.dispatch({type: LOGOUT});
     }
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
     return config;

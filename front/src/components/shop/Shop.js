@@ -4,8 +4,11 @@ import { NavLink, useParams } from "react-router-dom";
 import { fetchCategories } from "../../store/actions/CategoryAction";
 import { fetchProducts, hotdealsProducts } from "../../store/actions/ProductAction";
 import Loader from "../loader/Loader";
+import toast, {Toaster} from "react-hot-toast";
 import Pagination from "../pagination/Pagination";
 import $ from 'jquery';
+import { addToHeart } from "../../store/actions/ReviewAction";
+import { REMOVE_REVIEW_ERRORS, REMOVE_REVIEW_MESSAGE } from "../../store/types/ReviewType";
 
 const Shop = (props) => {
     const query = new URLSearchParams(props.location.search);
@@ -16,6 +19,8 @@ const Shop = (props) => {
     const [sorting, setSorting] = useState('');
     const [min, setMin] = useState(0);
     const [max, setMax] = useState(0);
+    const { user } = useSelector((state)=>state.UserReducer);
+    const { message, reviewErrors } = useSelector((state)=>state.ReviewReducer);
     const [htmlloading, setHtmlLoading] = useState(true);
     const { categories } = useSelector((state)=>state.CategoryReducer);
     const { products, loading, count, perPage, hotProducts } = useSelector((state)=>state.ProductReducer);
@@ -49,8 +54,27 @@ const Shop = (props) => {
         dispatch(fetchCategories());
         dispatch(hotdealsProducts());
     },[]);
+    const heartAction = (product_id) =>{
+        if(!user){
+            toast.error('Please Login to add product');
+            return false;
+        }
+        dispatch(addToHeart({product_id, user_id: user._id}));
+    }
+    useEffect(()=>{
+        if(message){
+            toast.success(message);
+            dispatch({type: REMOVE_REVIEW_MESSAGE});
+        }
+        if(reviewErrors.length > 0){
+            reviewErrors.map((error)=>{
+                toast.error(error.msg);
+            });
+            dispatch({type: REMOVE_REVIEW_ERRORS});
+        }
+    },[message,reviewErrors]);
     return !htmlloading? (
-        <> 
+        <> <Toaster position="top-right" reverseOrder={true}/>
            {loading ? <Loader/> :''}  
             <section className="breadcrumb-area">
                 <div className="banner-bg-img"></div>
@@ -101,21 +125,18 @@ const Shop = (props) => {
                                     <div className="single-item-wrap">
                                         <div className="thumb">
                                             <img src={`/images/product_images/${product.product_image}`} alt="img"/>
-                                            <a className="fav-btn" href="#"><i className="ri-heart-line"></i></a>
+                                            <a style={{cursor: "pointer"}} className="fav-btn" onClick={()=>heartAction(product._id)}><i className="ri-heart-line"></i></a>
                                         </div>
                                         <div className="wrap-details">
                                             <h5><NavLink to={`/shop/single/${product.product_code}`}>{ product.product_name }</NavLink></h5>
                                             <div className="wrap-footer">
                                                 <div className="rating">
-                                                    4.9
-                                                    <span className="rating-inner">
-                                                        <i className="ri-star-fill ps-0"></i>
-                                                        <i className="ri-star-fill"></i>
-                                                        <i className="ri-star-fill"></i>
-                                                        <i className="ri-star-fill"></i>
-                                                        <i className="ri-star-half-line pe-0"></i>
-                                                    </span>
-                                                    (200)
+                                                {product.total_count?(product.total_count/product.review_count).toFixed(1):'0.0'}
+                                                <span className="rating-inner">
+                                                    <img className="red_rating" style={{clip: `rect(0px, ${product.total_count?(product.total_count/product.review_count)*20 : 0}px, 50px, 0px)`}} src="/assets/img/rating.png"/>
+                                                    <img className="black_rating" src="/assets/img/black-rating.png"/>
+                                                </span>
+                                                ({product.review_count})
                                                 </div>
                                                 {product.product_discount > 0?
                                                 <>

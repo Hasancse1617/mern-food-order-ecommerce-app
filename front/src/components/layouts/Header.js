@@ -2,19 +2,34 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { fetchCategories } from "../../store/actions/CategoryAction";
+import { fetchCartItems } from "../../store/actions/ProductAction";
+import { fetchWishlists } from "../../store/actions/ReviewAction";
+import { SET_TOTAL_AMOUNT } from "../../store/types/ProductType";
 import { LOGOUT } from "../../store/types/UserType";
 
 const Header = () => {
     const dispatch = useDispatch();
     const { categories } = useSelector((state)=>state.CategoryReducer);
     const { user } = useSelector((state)=>state.UserReducer);
+    const { wishlists } = useSelector((state)=>state.ReviewReducer);
+    const { totalCartItem, totalAmount, cartItems } = useSelector((state)=>state.ProductReducer);
     const logout = () =>{
         localStorage.removeItem('userToken');
         dispatch({type: LOGOUT});
     }
     useEffect(()=>{
+        let totalPrice = 0;
+        cartItems.map((item)=>{
+            totalPrice = totalPrice + (item.attr_price - (item.attr_price * item.product_id.product_discount)/100)*item.quantity;
+        })
+        dispatch({type: SET_TOTAL_AMOUNT, payload: totalPrice});
+    },[cartItems]);
+
+    useEffect(()=>{
+        dispatch(fetchWishlists(user._id));
         dispatch(fetchCategories());
-    },[]);
+        dispatch(fetchCartItems(user._id));
+    },[user]);
     return (
         <> 
            <div className="preloader" id="preloader">
@@ -99,8 +114,9 @@ const Header = () => {
                                 </li>
                                 { !user ? <li><NavLink to={`/user/login`}>Login</NavLink></li>:
                                 <>
-                                    <li className="menu-cart"><NavLink to={`/shop/cart`}>CART <span>1</span></NavLink></li>
-                                    <li>0.00 $</li>
+                                    <li className="menu-cart"><NavLink to={`/shop/cart`}>CART <span>{ totalCartItem }</span></NavLink></li>
+                                    <li>{ totalAmount.toFixed(2) } $</li>
+                                    <li><NavLink to={`/shop/wishlist/${user._id}`} title="Wishlist"><i className="fas fa-heart"></i><span>{ wishlists.length }</span></NavLink></li>
                                     <li><a href="#" onClick={logout}>Logout</a></li>
                                 </>}
                             </ul>

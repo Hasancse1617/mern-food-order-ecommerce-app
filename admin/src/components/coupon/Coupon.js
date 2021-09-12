@@ -99,7 +99,7 @@ const Coupon = (props) => {
                               {
                                 (coupon.status === true) ? 
                                 <a class="updateCouponStatus" data-coupon={coupon._id} id={`coupon-${coupon._id}`} onClick={couponStatus} href="javascript:void(0)"> <i class="fas fa-toggle-on" status={coupon.status===true?'true':'false'} aria-hidden="true"></i></a>
-                                :<a class="updateCategoryStatus" data-coupon={coupon._id} id={`coupon-${coupon._id}`} onClick={couponStatus} href="javascript:void(0)"> <i class="fas fa-toggle-off" status={coupon.status===true?'true':'false'} aria-hidden="true"></i> </a> 
+                                :<a class="updateCouponStatus" data-coupon={coupon._id} id={`coupon-${coupon._id}`} onClick={couponStatus} href="javascript:void(0)"> <i class="fas fa-toggle-off" status={coupon.status===true?'true':'false'} aria-hidden="true"></i> </a> 
                               }
                           </td>
                           <td>

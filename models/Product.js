@@ -39,6 +39,14 @@ const productSchema = new Schema({
         type: Boolean,
         required: true
     },
+    review_count:{
+        type: Number,
+        default: 0
+    },
+    total_count:{
+        type: Number,
+        default: 0
+    },
     status:{
         type: Boolean,
         required: true

@@ -4,16 +4,22 @@ import { fetchCategories } from "../../store/actions/CategoryAction";
 import { fetchPosts } from "../../store/actions/PostAction";
 import { NavLink } from 'react-router-dom';
 import moment from 'moment';
+import { fetchBanners } from "../../store/actions/BannerAction";
+import { popularProducts } from "../../store/actions/ProductAction";
 
 const Dashboard = () => {
     const dispatch = useDispatch();
+    const { popularproducts } = useSelector((state)=>state.ProductReducer);
     const { categories } = useSelector((state)=>state.CategoryReducer);
     const { posts } = useSelector((state)=>state.PostReducer);
+    const { banners } = useSelector((state)=>state.BannerReducer);
     const [htmlloading, setHtmlLoading] = useState(true);
     useEffect(()=>{
         setHtmlLoading(false);
         dispatch(fetchCategories());
         dispatch(fetchPosts());
+        dispatch(fetchBanners());
+        dispatch(popularProducts());
     },[]);
     return !htmlloading? (
         <>
@@ -24,17 +30,19 @@ const Dashboard = () => {
                 <div className="banner-bg-img"></div>
                 <div className="banner-shape-1"><img src="/assets/img/banner/shape-1.png" alt="img"/></div>
                 <div className="banner-shape-2"><img src="/assets/img/banner/shape-2.png" alt="img"/></div>
-                <div className="container">
+                {banners.map((banner,index)=>(
+                  index === 0? <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-lg-6 col-md-8 align-self-center">
                             <div className="banner-inner text-center">
                                 <h3>Do not miss it!</h3>
-                                <h1>Pizza tastes better than skinny feels.</h1>
-                                <a className="btn btn-secondary" href="shop.html">GET IT NOW</a>
+                                <h1>{ banner.title }</h1>
+                                <NavLink className="btn btn-secondary" to={{pathname: `${banner.btn_url}`}} target="_blank">{ banner.btn_text }</NavLink>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>:''
+                ))}
             </section>
             {/* <!-- Banner Area End -->  */}
             
@@ -59,7 +67,7 @@ const Dashboard = () => {
             {/* <!-- category Area End -->  */}
 
             {/* <!-- offer Area Start--> */}
-            <section className="offer-area pd-top-120 pd-bottom-90">
+            {/* <section className="offer-area pd-top-120 pd-bottom-90">
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-md-6 align-self-center d-contents">
@@ -96,11 +104,11 @@ const Dashboard = () => {
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> */}
             {/* <!-- offer Area End -->  */}
 
             {/* <!-- populer Area Start--> */}
-            <section className="populer-area pd-bottom-90">
+            <section className="populer-area pd-bottom-90 mt-5">
                 <div className="container">
                     <div className="row justify-content-center">
                         <div className="col-12">
@@ -111,90 +119,32 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="row justify-content-center">
+                        {popularproducts.map((product)=>(
                         <div className="col-lg-4 col-md-6">
                             <div className="single-item-wrap">
                                 <div className="thumb">
-                                    <img src="assets/img/product/pizza/1.png" alt="img"/>
+                                    <img src={`/images/product_images/${product.product_image}`} alt="img"/>
                                     <a className="fav-btn" href="#"><i className="ri-heart-line"></i></a>
                                 </div>
                                 <div className="wrap-details">
-                                    <h5><a href="single-product.html">Margherita Pizza</a></h5>
+                                    <h5><NavLink to={`/shop/single/${product.product_code}`}>{ product.product_name }</NavLink></h5>
                                     <div className="wrap-footer">
                                         <div className="rating">
-                                            4.9
+                                            {product.total_count?(product.total_count/product.review_count).toFixed(1):'0.0'}
                                             <span className="rating-inner">
-                                                <i className="ri-star-fill ps-0"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-half-line pe-0"></i>
+                                                <img className="red_rating" style={{clip: `rect(0px, ${product.total_count?(product.total_count/product.review_count)*20 : 0}px, 50px, 0px)`}} src="/assets/img/rating.png"/>
+                                                <img className="black_rating" src="/assets/img/black-rating.png"/>
                                             </span>
-                                            (200)
+                                            ({product.review_count?product.review_count:0})
                                         </div>
-                                        <h6 className="price">$17.00</h6>
+                                        <h6 className="price">${ product.product_price.toFixed(2) }</h6>
                                     </div>                            
                                 </div>
                                 <div className="btn-area">
-                                    <a className="btn btn-secondary" href="single-product.html">CHOOSE OPTIONS </a>         
+                                    <NavLink className="btn btn-secondary" to={`/shop/single/${product.product_code}`}>CHOOSE OPTIONS </NavLink>         
                                 </div> 
                             </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                            <div className="single-item-wrap">
-                                <div className="thumb">
-                                    <img src="assets/img/product/pizza/2.png" alt="img"/>
-                                    <a className="fav-btn" href="#"><i className="ri-heart-line"></i></a>
-                                </div>
-                                <div className="wrap-details">
-                                    <h5><a href="single-product.html">Maxican Pizza Test Better</a></h5>
-                                    <div className="wrap-footer">
-                                        <div className="rating">
-                                            4.9
-                                            <span className="rating-inner">
-                                                <i className="ri-star-fill ps-0"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-half-line pe-0"></i>
-                                            </span>
-                                            (928)
-                                        </div>
-                                        <h6 className="price">$29.00</h6>
-                                    </div>
-                                    <div className="btn-area">
-                                        <a className="btn btn-secondary" href="single-product.html">CHOOSE OPTIONS </a>         
-                                    </div>                                               
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-lg-4 col-md-6">
-                            <div className="single-item-wrap">
-                                <div className="thumb">
-                                    <img src="assets/img/product/burger/1.png" alt="img"/>
-                                    <a className="fav-btn" href="#"><i className="ri-heart-line"></i></a>
-                                </div>
-                                <div className="wrap-details">
-                                    <h5><a href="single-product.html">Patty Buns Burgers</a></h5>
-                                    <div className="wrap-footer">
-                                        <div className="rating">
-                                            4.9
-                                            <span className="rating-inner">
-                                                <i className="ri-star-fill ps-0"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-fill"></i>
-                                                <i className="ri-star-half-line pe-0"></i>
-                                            </span>
-                                            (462)
-                                        </div>
-                                        <h6 className="price">$27.00</h6>
-                                    </div>                            
-                                </div>
-                                <div className="btn-area">
-                                    <a className="btn btn-secondary" href="single-product.html">CHOOSE OPTIONS </a>         
-                                </div> 
-                            </div>
-                        </div>
+                        </div>))}
                     </div>
                 </div>
             </section>
@@ -297,17 +247,14 @@ const Dashboard = () => {
                                                 <h5><NavLink to={`/shop/single/${product.product_code}`}>{ product.product_name }</NavLink></h5>
                                                 <div className="wrap-footer">
                                                     <div className="rating">
-                                                        4.9
+                                                       {product.total_count?(product.total_count/product.review_count).toFixed(1):'0.0'}
                                                         <span className="rating-inner">
-                                                            <i className="ri-star-fill ps-0"></i>
-                                                            <i className="ri-star-fill"></i>
-                                                            <i className="ri-star-fill"></i>
-                                                            <i className="ri-star-fill"></i>
-                                                            <i className="ri-star-half-line pe-0"></i>
+                                                           <img className="red_rating" style={{clip: `rect(0px, ${product.total_count?(product.total_count/product.review_count)*20 : 0}px, 50px, 0px)`}} src="/assets/img/rating.png"/>
+                                                           <img className="black_rating" src="/assets/img/black-rating.png"/>
                                                         </span>
-                                                        (200)
+                                                        ({product.review_count?product.review_count:0})
                                                     </div>
-                                                    <h6 className="price">${ product.product_price }</h6>
+                                                    <h6 className="price">${ product.product_price.toFixed(2) }</h6>
                                                 </div>                            
                                             </div>
                                             <div className="btn-area">

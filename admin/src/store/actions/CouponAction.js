@@ -91,6 +91,7 @@ export const statusAction = (statusData) =>{
     return async(dispatch,getState)=>{
           try {
                   const {data: {status,coupon_id}} = await axiosInstance.post(`/status-coupon`, statusData);
+                  console.log(status,coupon_id);
                   if(status == false){
                         $('#coupon-'+coupon_id).html(`<i class='fas fa-toggle-off' aria-hidden='true' status=${status}></i>`);
                   }else{

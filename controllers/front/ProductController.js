@@ -2,7 +2,11 @@ const Category = require("../../models/Category");
 const Product = require("../../models/Product");
 const ProductAttribute = require("../../models/ProductAttribute");
 const Cart = require("../../models/Cart");
+const Coupon = require("../../models/Coupon");
 const Customer = require("../../models/Customer");
+const DeliveryAddress = require("../../models/DeliveryAddress");
+const Order = require("../../models/Order");
+const OrdersProduct = require("../../models/OrdersProduct");
 
 module.exports.allProduct = async(req, res) =>{
     const { sorting, url, page, min, max } = req.body;
@@ -126,6 +130,15 @@ module.exports.relatedProducts = async(req, res) =>{
     }
 }
 
+module.exports.popularProducts = async(req,res) =>{
+    try {
+        const response = await Product.find().sort({review_count:"descending"}).limit(3);
+        return res.status(200).json({ response });
+    } catch (error) {
+        return res.status(500).json({errors: [{msg: error.message}]});
+    }
+}
+
 module.exports.sizePrice = async(req, res) =>{
     const { code, size } = req.body;
     const product = await Product.findOne({product_code: code});
@@ -175,8 +188,19 @@ module.exports.addToCart = async(req,res) =>{
 module.exports.fetchCartItems = async(req,res) =>{
     const userId = req.params.userId;
     try {
-        const response = await Cart.find({customer_id: userId}).populate('product_id').sort({createdAt:'descending'});
-        return res.status(200).json({ response });
+        const itemCount = await Cart.find().countDocuments();
+        if(itemCount > 0){
+            const customer = await Customer.findById(userId);
+            const count = await Cart.aggregate([
+                { $match: { customer_id: customer._id } },
+                { $group: { _id: null, quantity: { $sum: "$quantity" } } }
+            ]);
+            const response = await Cart.find({customer_id: userId}).populate('product_id').sort({createdAt:'descending'});
+            return res.status(200).json({ response, totalCartItem: count[0].quantity });
+        }
+        else{
+            return res.status(200).json({ response: [], totalCartItem: 0 });
+        }
     } catch (error) {
         return res.status(500).json({errors: [{msg: error.message}]});
     }
@@ -211,5 +235,110 @@ module.exports.deleteCartItem = async(req,res) =>{
         return res.status(200).json({ msg: 'Cart deleted successfully'});
     } catch (error) {
         return res.status(500).json({errors: [{msg: error.message}]});
+    }
+}
+
+module.exports.applyCoupon = async(req,res) =>{
+    const { code } = req.body;
+    const coupon = await Coupon.findOne({code});
+    const errors = [];
+    if(code === ''){
+        errors.push({msg: 'Coupon code is required'});
+    }else{
+        if(!coupon){
+            errors.push({msg: 'Coupon is not Valid'});
+        }else if(new Date(coupon.expiry_date) < new Date()){
+            errors.push({msg: 'This Coupon is Expired'}); 
+        }
+        else if(coupon.status === false){
+            errors.push({msg: 'This Coupon is not active'});
+        }
+    }
+    if(errors.length !== 0){
+        return res.status(400).json({errors});
+    }else{
+        try {
+            return res.status(200).json({msg: 'Coupon code successfully applied', couponAmount: coupon.amount, couponCode: code});
+        } catch (error) {
+            return res.status(500).json({errors: [{msg: error.message}]});
+        }
+    }
+}
+
+module.exports.deliveryAddress = async(req,res) =>{
+    const user_id = req.params.user_id;
+    try {
+        const response = await DeliveryAddress.findOne({customer_id: user_id});
+        return res.status(200).json({response});
+    } catch (error) {
+        return res.status(500).json({errors: [{msg: error.message}]});
+    }
+}
+
+module.exports.Checkout = async(req,res) =>{
+    const {user_id, state, cartItems, couponCode, couponAmount, payment_gateway, totalAmount} = req.body;
+    const { name, email, mobile, address, zipcode, district, country } = state;
+    const errors = [];
+    if(name === ''){
+        errors.push({msg: 'Name is required'});
+    }
+    if(email === ''){
+        errors.push({msg: 'Name is required'});
+    }
+    if(mobile === ''){
+        errors.push({msg: 'Mobile is required'});
+    }
+    if(address === ''){
+        errors.push({msg: 'Address is required'});
+    }
+    if(zipcode === ''){
+        errors.push({msg: 'Zip-code is required'});
+    }
+    if(district === ''){
+        errors.push({msg: 'District is required'});
+    }
+    if(country === ''){
+        errors.push({msg: 'Country is required'});
+    }
+    if(payment_gateway === ''){
+        errors.push({msg: 'Payment Method is required'});
+    }
+    if(errors.length !== 0){
+        return res.status(500).json({errors});
+    }else{
+        try {
+            const grand_total = totalAmount - couponAmount;
+            let payment_method;
+            if(payment_gateway === 'COD'){
+              payment_method = 'COD';
+            }
+            const deliveryAddress = await DeliveryAddress.findOne({customer_id: user_id});
+            if(deliveryAddress){
+                const editaddress = await DeliveryAddress.findByIdAndUpdate(user_id,{name,email,mobile,address,zipcode,district,country});
+            }else{
+                const newaddress = await DeliveryAddress.create({customer_id: user_id,name,email,mobile,address,zipcode,district,country});
+            }
+            const order = await Order.create({customer_id: user_id, name, email, mobile, zipcode, address, district, country, shipping_charge: 0, coupon_code: couponCode, coupon_amount: couponAmount, payment_method, payment_gateway, grand_total, order_status: 'New'});
+            cartItems.forEach(async(item) => {
+                const attr_price = (item.attr_price - (item.attr_price * item.product_id.product_discount)/100).toFixed(2);
+                const orderProduct = await OrdersProduct.create({
+                    order_id: order._id, 
+                    customer_id: user_id, 
+                    product_id: item.product_id._id, 
+                    product_code: item.product_id.product_code,
+                    product_name: item.product_id.product_name,
+                    product_size: item.size,
+                    product_price: attr_price,
+                    product_qty: item.quantity
+                });
+                const attrStock = await ProductAttribute.findOne({product_id: item.product_id._id, size: item.size});
+                const stockPro = attrStock.stock - item.quantity;
+                const productAttr = await ProductAttribute.findOneAndUpdate({product_id: item.product_id._id, size: item.size},{stock: stockPro});
+            });
+            const deleteCart = await Cart.deleteMany({customer_id: user_id});
+            return res.status(200).json({msg: 'Thanks for your order', order_id: order._id});
+        } catch (error) {
+            return res.status(500).json({errors: [{msg: error.message}]});
+        }
     }
 }

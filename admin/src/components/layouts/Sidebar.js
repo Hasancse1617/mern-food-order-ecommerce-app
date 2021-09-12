@@ -79,7 +79,13 @@ const Sidebar = () => {
                         </a>
                         <ul className="nav nav-treeview">
                         <li className="nav-item">
-                            <NavLink exact to="/admin/category/all?page=1" activeClassName="active" className="nav-link">
+                            <NavLink exact to="/admin/banner/all?page=1" activeClassName="active" className={ pathname==='/admin/banner/create' || pathname.includes('/admin/banner/edit/') ?'nav-link active':'nav-link'}>
+                            <i className="far fa-circle nav-icon"></i>
+                            <p>Banner</p>
+                            </NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink exact to="/admin/category/all?page=1" activeClassName="active" className={ pathname==='/admin/category/create' || pathname.includes('/admin/category/edit/') ?'nav-link active':'nav-link'}>
                             <i className="far fa-circle nav-icon"></i>
                             <p>Category</p>
                             </NavLink>

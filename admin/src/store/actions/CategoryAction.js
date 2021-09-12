@@ -58,7 +58,6 @@ export const fetchCategory = (id) =>{
                 const { data } = await axiosInstance.get(`/edit-category/${id}`);
                 dispatch({type:SET_SINGLE_CATEGORY, payload: data.response});
                 dispatch({type: REMOVE_CATEGORY_LOADER});
-                console.log(data.response)
           } catch (error) {
                 const {errors} = error.response.data;
                 dispatch({type: REMOVE_CATEGORY_LOADER});
@@ -76,12 +75,10 @@ export const updateAction = (categoryData,id) =>{
                   dispatch({type: REMOVE_CATEGORY_LOADER});
                   dispatch({type: SET_CATEGORY_MESSAGE, payload:msg});
                   dispatch({type: SET_CATEGORY_REDIRECT}); 
-                  console.log(msg);   
             } catch (error) {
                   const {errors} = error.response.data;
                   dispatch({type: REMOVE_CATEGORY_LOADER});
                   dispatch({type: SET_CATEGORY_ERRORS, payload:errors});
-                  console.log(errors);
             }
       }
   }
@@ -94,7 +91,6 @@ export const statusAction = (statusData) =>{
             } catch (error) {
                   const {errors} = error.response.data;
                   dispatch({type: SET_CATEGORY_ERRORS, payload:errors});
-                  console.log(errors);
             }
       }
   }

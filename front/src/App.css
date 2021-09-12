@@ -60,7 +60,49 @@ button.active-account {
 .media.reply img{
   width: 60px;
 }
-.variation select {
+.variation select, select {
   padding: 10px;
   border-radius: 8px;
+}
+.order-area .order-product .thumb img {
+  height: auto;
+}
+.order-area .order-product {
+  padding: 10px 30px;
+}
+.order-product .details li span{
+  font-weight: bold;
+  color: black;
+}
+.add_review{
+  cursor: pointer;
+}
+.add_review svg{
+  margin-right: 5px;
+}
+.add_review.active svg{
+  color: #d80027;
+}
+.single-textarea-wrap textarea{
+  background-color: #fff !important;
+}
+.comment-area .media .media-body p {
+  margin: 0px;
+}
+.comment-area .media {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.rating-inner{
+  position: relative;
+}
+span.rating-inner img {
+  width: 100px;
+  vertical-align: initial !important;
+}
+.red_rating{
+  position: absolute;
+}
+.rating-inner {
+  display: inline;
 }

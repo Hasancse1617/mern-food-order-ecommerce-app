@@ -185,6 +185,7 @@ module.exports.deletePost = async (req,res)=>{
         fs.exists(`public/images/post_images/${image}`, function(file){
             if(file) {
                 fs.unlink(`public/images/post_images/${image}`, async(error)=>{});
+                fs.unlink(`public/images/post_images/large/${image}`, async(error)=>{});
             }
         });
         return res.status(200).json({msg: 'Post deleted successfully'});

@@ -2,33 +2,31 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import toast, {Toaster} from "react-hot-toast";
-import { fetchCartItems, updateCartItem, deleteCartItem } from "../../store/actions/ProductAction";
-import { REMOVE_PRODUCT_ERRORS } from "../../store/types/ProductType";
+import { fetchCartItems, updateCartItem, deleteCartItem, fetchCoupon } from "../../store/actions/ProductAction";
+import { REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_MESSAGE, SET_TOTAL_AMOUNT } from "../../store/types/ProductType";
 import Loader from "../loader/Loader";
 
 const Cart = () => {
     const dispatch = useDispatch();
     const { user } = useSelector((state)=>state.UserReducer);
-    const { cartItems, productErrors, message, loading } = useSelector((state)=>state.ProductReducer);
+    const { cartItems, productErrors, message, loading, totalAmount } = useSelector((state)=>state.ProductReducer);
     const [htmlloading, setHtmlLoading] = useState(true);
-    const [subTotal, setSubTotal] = useState(0);
+    const [couponCode, setCouponCode] = useState('');
     useEffect(()=>{
         setHtmlLoading(false);
         dispatch(fetchCartItems(user._id));
+        sessionStorage.setItem('couponAmount', 0);
+        sessionStorage.setItem('couponCode', '');
     },[]);
-    useEffect(()=>{
-        let totalPrice = 0;
-        cartItems.map((item)=>{
-            totalPrice = totalPrice + (item.attr_price - (item.attr_price * item.product_id.product_discount)/100)*item.quantity;
-        })
-        setSubTotal(totalPrice);
-    },[cartItems]);
     const quantityAction = (cartId, quantity, product_id, size) =>{
         dispatch(updateCartItem({cartId, quantity, product_id, size}));
-        console.log('quantity',quantity)
+        sessionStorage.setItem('couponAmount', 0);
+        sessionStorage.setItem('couponCode', '');
     }
     const deleteItem = (cartId) =>{
         dispatch(deleteCartItem(cartId));
+        sessionStorage.setItem('couponAmount', 0);
+        sessionStorage.setItem('couponCode', '');
     }
     useEffect(()=>{
         if(productErrors.length > 0){
@@ -39,9 +37,19 @@ const Cart = () => {
         }
     },[productErrors]);
     useEffect(()=>{
-        dispatch(fetchCartItems(user._id));
-    },[message,loading]);
-
+        if(message){
+            toast.success(message);
+            dispatch(fetchCartItems(user._id));
+            dispatch({type: REMOVE_PRODUCT_MESSAGE});
+            if(sessionStorage.getItem('couponAmount')){
+                setCouponCode('');
+            }
+        }
+    },[message]);
+    const couponAction = (e) =>{
+        e.preventDefault();
+        dispatch(fetchCoupon(couponCode));
+    }
     return !htmlloading? (
         <>
         {loading ? <Loader/> :''}  
@@ -121,11 +129,11 @@ const Cart = () => {
                     </div>
                     <div className="col-lg-8">
                         <div className="promotional-area">
-                            <form className="default-form-wrap">
+                            <form className="default-form-wrap" onSubmit={couponAction}>
                                 <div className="row">
                                     <div className="col-md-4 col-sm-6">
                                         <div className="single-input-wrap">
-                                            <input type="text" className="form-control" placeholder="Coupon Code"/>
+                                            <input type="text" className="form-control" placeholder="Coupon Code" value={couponCode} onChange={(e)=>setCouponCode(e.target.value)} />
                                         </div>
                                     </div>
                                     <div className="col-md-4 col-sm-6">
@@ -140,11 +148,12 @@ const Cart = () => {
                             <div className="order-cart">
                                 <h5>Cart totals</h5>
                                 <ul>
-                                    <li>Subtotal<span>${ subTotal.toFixed(2) }</span></li>
-                                    <li className="total">Total<span>${ subTotal.toFixed(2) }</span></li>
+                                    <li>Subtotal<span>${ totalAmount.toFixed(2) }</span></li>
+                                    <li>Coupon Discount<span>${sessionStorage.getItem('couponAmount')? parseFloat(sessionStorage.getItem('couponAmount')).toFixed(2) : '0.00'}</span></li> 
+                                    <li className="total">Total<span>${ parseFloat(totalAmount.toFixed(2) - sessionStorage.getItem('couponAmount')).toFixed(2) }</span></li>
                                 </ul>
                             </div>
-                            <a className="btn btn-secondary w-100" href="#"> PROCEED TO CHECKOUT</a>
+                            <NavLink className="btn btn-secondary w-100" to="/shop/checkout"> PROCEED TO CHECKOUT</NavLink>
                         </div>                
                     </div>
                 </div>:<h2 className="text-center">Cart is empty</h2>}

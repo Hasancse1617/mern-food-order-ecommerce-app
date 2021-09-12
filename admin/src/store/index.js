@@ -7,6 +7,7 @@ import CategoryReducer from './reducers/CategoryReducer';
 import ProductReducer from './reducers/ProductReducer';
 import PostReducer from './reducers/PostReducer';
 import CouponReducer from './reducers/CouponReducer';
+import BannerReducer from './reducers/BannerReducer';
 
 
 const rootReducers = combineReducers({
@@ -16,6 +17,7 @@ const rootReducers = combineReducers({
      ProductReducer,
      PostReducer,
      CouponReducer,
+     BannerReducer,
 });
 const middlewares = [thunkMiddleware];
 const Store = createStore(rootReducers, composeWithDevTools( applyMiddleware(...middlewares)));

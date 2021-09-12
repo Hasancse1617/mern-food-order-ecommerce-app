@@ -1,4 +1,4 @@
-import { REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_LOADER, REMOVE_PRODUCT_MESSAGE, SET_CART_ITEMS, SET_HOT_PRODUCTS, SET_PRICE, SET_PRODUCTS, SET_PRODUCT_ERRORS, SET_PRODUCT_LOADER, SET_PRODUCT_MESSAGE, SET_RELATED_PRODUCT, SET_SINGLE_PRODUCT } from "../types/ProductType"
+import { REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_LOADER, REMOVE_PRODUCT_MESSAGE, SET_CART_ITEMS, SET_DELIVERY_ADDRESS, SET_HOT_PRODUCTS, SET_POPULAR_PRODUCT, SET_PRICE, SET_PRODUCTS, SET_PRODUCT_ERRORS, SET_PRODUCT_LOADER, SET_PRODUCT_MESSAGE, SET_RELATED_PRODUCT, SET_SINGLE_PRODUCT, SET_TOTAL_AMOUNT } from "../types/ProductType"
 
 const initState = {
     loading: false,
@@ -8,10 +8,14 @@ const initState = {
     hotProducts: [],
     product: [],
     relatedproducts: [],
+    popularproducts: [],
     attrprice: 0,
     productErrors: [],
     message: "",
     cartItems: [],
+    totalCartItem: 0,
+    totalAmount: 0,
+    deleveryAddress: [],
 }
 
 const ProductReducer = (state=initState, action) =>{
@@ -33,6 +37,9 @@ const ProductReducer = (state=initState, action) =>{
     else if(action.type === SET_RELATED_PRODUCT){
         return{...state, relatedproducts: action.payload}
     }
+    else if(action.type === SET_POPULAR_PRODUCT){
+        return{...state, popularproducts: action.payload}
+    }
     else if(action.type === SET_PRICE){
         return{...state, attrprice: action.payload}
     }
@@ -49,7 +56,13 @@ const ProductReducer = (state=initState, action) =>{
         return{...state, message: ''}
     }
     else if(action.type === SET_CART_ITEMS){
-        return{...state, cartItems: action.payload}
+        return{...state, cartItems: action.payload.response, totalCartItem: action.payload.totalCartItem}
+    }
+    else if(action.type === SET_TOTAL_AMOUNT){
+        return{...state, totalAmount: action.payload}
+    }
+    else if(action.type === SET_DELIVERY_ADDRESS){
+        return{...state, deleveryAddress: action.payload}
     }
     else{
         return state;

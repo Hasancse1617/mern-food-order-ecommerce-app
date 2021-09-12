@@ -7,6 +7,7 @@ import loadjs from "loadjs";
 import Swal from 'sweetalert2';
 import toast, {Toaster} from "react-hot-toast";
 import { REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_MESSAGE } from "../../store/types/ProductType";
+import Review from "./Review";
 
 const ShopSingle = () => {
     const { code } = useParams();
@@ -16,6 +17,7 @@ const ShopSingle = () => {
     const [size, setSize] = useState('');
     const [htmlloading, setHtmlLoading] = useState(true);
     const { user } = useSelector((state)=>state.UserReducer);
+    const { reviews } = useSelector((state)=>state.ReviewReducer);
     const { product, loading, relatedproducts, attrprice, productErrors, message } = useSelector((state)=>state.ProductReducer);
     const selectSize = (e) =>{
         setSize(e.target.value);
@@ -42,6 +44,7 @@ const ShopSingle = () => {
     }
     useEffect(()=>{
         setHtmlLoading(false);
+        dispatch(fetchSingle(code));
     },[]);
     useEffect(()=>{
         dispatch(fetchSingle(code));
@@ -49,17 +52,10 @@ const ShopSingle = () => {
     },[code]);
     useEffect(()=>{
         loadjs('/assets/js/main.js',()=>{});
-    },[relatedproducts]);
+    },[relatedproducts,product]);
     useEffect(()=>{
         if(message){
-            Swal.fire({
-              position: 'top-end',
-              icon: 'success',
-              title: message,
-              toast: true,
-              showConfirmButton: false,
-              timer: 5000
-            })
+            toast.success(message);
             dispatch({type: REMOVE_PRODUCT_MESSAGE});
             history.push("/shop/cart");
         }
@@ -73,22 +69,22 @@ const ShopSingle = () => {
     return !htmlloading? (
         <><Toaster position="top-right" reverseOrder={true}/>
             {loading ? <Loader/>:''}
-            <div class="shop-details-area pd-top-100">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        {!loading?<div class="col-md-6">
-                            <div class="sticy-product">
-                                <div class="product-thumbnail-wrapper">
-                                    {product.images?<div class="single-thumbnail-slider">
+            <div className="shop-details-area pd-top-100">
+                <div className="container">
+                    <div className="row justify-content-center">
+                        {!loading?<div className="col-md-6">
+                            <div className="sticy-product">
+                                <div className="product-thumbnail-wrapper">
+                                    {product.images?<div className="single-thumbnail-slider">
                                         {product.images.map((image)=>(
-                                           <div class="slider-item">
+                                           <div className="slider-item">
                                                 <img src={`/images/product_images/large/${image.image}`} alt="item"/>
                                             </div>
                                         ))}
                                     </div>:''}
-                                    {product.images? <div class="product-thumbnail-carousel">
+                                    {product.images? <div className="product-thumbnail-carousel">
                                         {product.images.map((image)=>(
-                                        <div class="single-thumbnail-item">
+                                        <div className="single-thumbnail-item">
                                             <img src={`/images/product_images/small/${image.image}`} alt="item"/>
                                         </div>
                                         ))}
@@ -96,48 +92,45 @@ const ShopSingle = () => {
                                 </div>
                             </div>
                         </div>:''}
-                        <div class="col-md-6">
-                            <div class="shop-item-details">
+                        <div className="col-md-6">
+                            <div className="shop-item-details">
                                 <nav>
-                                    <ul class="breadcrumb">
-                                    <li class="breadcrumb-item"><NavLink to="/">Home</NavLink></li>
-                                    {product.category?<li class="breadcrumb-item"><NavLink to={`/shop/category/${product.category[0].url}?page=1`}>{ product.category[0].category_name }</NavLink></li>:''}
-                                    <li class="breadcrumb-item active" aria-current="page">Shop Details</li>
+                                    <ul className="breadcrumb">
+                                    <li className="breadcrumb-item"><NavLink to="/">Home</NavLink></li>
+                                    {product.category?<li className="breadcrumb-item"><NavLink to={`/shop/category/${product.category[0].url}?page=1`}>{ product.category[0].category_name }</NavLink></li>:''}
+                                    <li className="breadcrumb-item active" aria-current="page">Shop Details</li>
                                     </ul>
                                 </nav>                        
-                                <h2 class="entry-title">{ product.product_name }</h2>
-                                <div class="row">
-                                    <div class="col-lg-6 order-lg-last align-self-center">
-                                        <div class="rating text-lg-end">
-                                            4.9
-                                            <span class="rating-inner">
-                                                <i class="ri-star-fill ps-0"></i>
-                                                <i class="ri-star-fill"></i>
-                                                <i class="ri-star-fill"></i>
-                                                <i class="ri-star-fill"></i>
-                                                <i class="ri-star-half-line pe-0"></i>
+                                <h2 className="entry-title">{ product.product_name }</h2>
+                                <div className="row">
+                                    <div className="col-lg-6 order-lg-last align-self-center">
+                                        <div className="rating text-lg-end">
+                                            {product.total_count? (product.total_count/product.review_count).toFixed(1):'0.0'}
+                                            <span className="rating-inner">
+                                                <img className="red_rating" style={{clip: `rect(0px, ${product.total_count? (product.total_count/product.review_count)*20 : 0 }px, 50px, 0px)`}} src="/assets/img/rating.png"/>
+                                                <img className="black_rating" src="/assets/img/black-rating.png"/>
                                             </span>
-                                            (200)
+                                            ({reviews.length})
                                         </div> 
                                     </div>
 
-                                    {attrprice > 0?<div class="col-lg-6 align-self-center">
+                                    {attrprice > 0?<div className="col-lg-6 align-self-center">
                                        {product.product_discount > 0 ?
-                                        <h4 class="price">${ attrprice - (product.product_discount*attrprice/100) } <del style={{color:'#198754'}}>${ attrprice }</del></h4>:
-                                        <h4 class="price">${ attrprice }</h4>
+                                        <h4 className="price">${ attrprice - (product.product_discount*attrprice/100) } <del style={{color:'#198754'}}>${ attrprice }</del></h4>:
+                                        <h4 className="price">${ attrprice }</h4>
                                         }
                                     </div>:''}
-                                    {attrprice === 0?<div class="col-lg-6 align-self-center">
+                                    {attrprice === 0?<div className="col-lg-6 align-self-center">
                                        {product.product_discount > 0 ?
-                                        <h4 class="price">${ product.product_price - (product.product_discount*product.product_price/100) } <del style={{color:'#198754'}}>${ product.product_price }</del></h4>:
-                                        <h4 class="price">${ product.product_price }</h4>
+                                        <h4 className="price">${ product.product_price - (product.product_discount*product.product_price/100) } <del style={{color:'#198754'}}>${ product.product_price }</del></h4>:
+                                        <h4 className="price">${ product.product_price }</h4>
                                         }
                                     </div>:''}                              
                                 </div>   
-                                <p class="mt-4">{ product.short_desc }</p>  
-                                <div class="row">
-                                    <div class="col-lg-6">
-                                        <div class="variation">
+                                <p className="mt-4">{ product.short_desc }</p>  
+                                <div className="row">
+                                    <div className="col-lg-6">
+                                        <div className="variation">
                                             <h6>Select Size</h6>
                                             {product.attributes?<select onChange={selectSize}>
                                                 <option disabled selected>--Choose youe Size--</option>
@@ -149,64 +142,31 @@ const ShopSingle = () => {
                                     </div>
                                 </div>    
                                 <form onSubmit={addToCart}>
-                                    <div class="quantity buttons_added">
-                                        <input type="button" value="-" class="minus" onClick={()=>quantityAddesd('minus')}/>
-                                        <input type="number" class="input-text text" name="quantity" value={quantity}/>
-                                        <input type="button" value="+" class="plus" onClick={()=>quantityAddesd('plus')}/>
+                                    <div className="quantity buttons_added">
+                                        <input type="button" value="-" className="minus" onClick={()=>quantityAddesd('minus')}/>
+                                        <input type="number" className="input-text text" name="quantity" value={quantity}/>
+                                        <input type="button" value="+" className="plus" onClick={()=>quantityAddesd('plus')}/>
                                     </div>
-                                    <button type="submit" class="btn btn-secondary">ADD TO CART</button>
+                                    <button type="submit" className="btn btn-secondary">ADD TO CART</button>
                                 </form>
-                                <ul class="cat">
+                                <ul className="cat">
                                     <li> SKU: { product.product_code }</li>
                                     <li>Categories: {product.category? <NavLink to={`/shop/category/${product.category[0].url}?page=1`}>{ product.category[0].category_name }</NavLink>:""}  </li>
                                 </ul>
-                                <div class="shop-tabs">
-                                    <ul class="nav nav-pills" id="pills-tab" role="tablist">
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Description</button>
+                                <div className="shop-tabs">
+                                    <ul className="nav nav-pills" id="pills-tab" role="tablist">
+                                        <li className="nav-item" role="presentation">
+                                            <button className="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Description</button>
                                         </li>
-                                        <li class="nav-item" role="presentation">
-                                            <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Reviews (1) </button>
+                                        <li className="nav-item" role="presentation">
+                                            <button className="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Reviews ({reviews.length}) </button>
                                         </li>
                                     </ul>
-                                    <div class="tab-content" id="pills-tabContent">
-                                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                                    <div className="tab-content" id="pills-tabContent">
+                                        <div className="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
                                             { product.description }
                                         </div>
-                                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
-                                            <div class="comment-area">
-                                                <div class="media">
-                                                    <div class="media-left">
-                                                        <img src="/assets/img/blog/comment.png" alt="img"/>
-                                                    </div>
-                                                    <div class="media-body">
-                                                        <h6>Haslida heris</h6>
-                                                        <span>20 Feb 2020 at 4:00 pm</span>
-                                                        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Quis ipsum suspendisse ultrices gravida. Risus commodo viverra maecenas accumsan lacus vel facilisis.</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <form class="default-form-wrap style-2">
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="single-input-wrap">
-                                                            <input type="text" class="form-control" placeholder="Your Name"/>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="single-input-wrap">
-                                                            <input type="text" class="form-control" placeholder="Your Email"/>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-12">
-                                                        <div class="single-textarea-wrap">
-                                                            <textarea rows="4" placeholder="Review..."></textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <button type="submit" class="btn btn-base">Submit</button>
-                                            </form>
-                                        </div>
+                                        <Review code={code}/>
                                     </div>
                                 </div>
                             </div>
@@ -214,33 +174,33 @@ const ShopSingle = () => {
                     </div>
                 </div>
             </div>
-            {!loading?<section class="related-product-area pd-top-120">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-12">
-                            <div class="section-title mb-0">
-                                <h2 class="title">Related Products</h2>
+            {!loading?<section className="related-product-area pd-top-120">
+                <div className="container">
+                    <div className="row justify-content-center">
+                        <div className="col-lg-12">
+                            <div className="section-title mb-0">
+                                <h2 className="title">Related Products</h2>
                             </div>
-                            <div class="related-product-slider owl-carousel style-2">
+                            <div className="related-product-slider owl-carousel style-2">
 
                                {relatedproducts.map((product)=>(
-                                   <div class="item">
-                                   <div class="single-item-wrap">
-                                       <div class="thumb">
+                                   <div className="item">
+                                   <div className="single-item-wrap">
+                                       <div className="thumb">
                                            <img src={`/images/product_images/${product.product_image}`} alt="img"/>
-                                           <a class="fav-btn" href="#"><i class="ri-heart-line"></i></a>
+                                           <a className="fav-btn" href="#"><i className="ri-heart-line"></i></a>
                                        </div>
-                                       <div class="wrap-details">
+                                       <div className="wrap-details">
                                            <h5><NavLink to={`/shop/single/${product.product_code}`}>{ product.product_name }</NavLink></h5>
-                                           <div class="wrap-footer">
-                                               <div class="rating">
+                                           <div className="wrap-footer">
+                                               <div className="rating">
                                                    4.9
-                                                   <span class="rating-inner">
-                                                       <i class="ri-star-fill ps-0"></i>
-                                                       <i class="ri-star-fill"></i>
-                                                       <i class="ri-star-fill"></i>
-                                                       <i class="ri-star-fill"></i>
-                                                       <i class="ri-star-half-line pe-0"></i>
+                                                   <span className="rating-inner">
+                                                       <i className="ri-star-fill ps-0"></i>
+                                                       <i className="ri-star-fill"></i>
+                                                       <i className="ri-star-fill"></i>
+                                                       <i className="ri-star-fill"></i>
+                                                       <i className="ri-star-half-line pe-0"></i>
                                                    </span>
                                                    (200)
                                                </div>
@@ -251,8 +211,8 @@ const ShopSingle = () => {
                                                 }
                                            </div>                            
                                        </div>
-                                       <div class="btn-area">
-                                           <NavLink class="btn btn-secondary" to={`/shop/single/${product.product_code}`}>CHOOSE OPTIONS </NavLink>         
+                                       <div className="btn-area">
+                                           <NavLink className="btn btn-secondary" to={`/shop/single/${product.product_code}`}>CHOOSE OPTIONS </NavLink>         
                                        </div> 
                                    </div>
                                </div>
