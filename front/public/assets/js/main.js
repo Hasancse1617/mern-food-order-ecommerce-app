@@ -13,7 +13,7 @@
         /*-------------------------------------
             menu
         -------------------------------------*/
-        $('.navbar-area .menu').on('click', function() {
+        $(document).on('click', '.navbar-area .menu', function() {
             $(this).toggleClass('open');
             $('.navbar-area .navbar-collapse').toggleClass('sopen');
         });
@@ -24,12 +24,9 @@
             $(".in-mobile ul li.menu-item-has-children").append('<i class="fas fa-chevron-right"></i>');
             $('<i class="fas fa-chevron-right"></i>').insertAfter("");
 
-            $(".menu-item-has-children a").on('click', function(e) {
+            $(document).on('click','.menu-item-has-children a', function(e) {
                 // e.preventDefault();
-
-                $(this).siblings('.sub-menu').animate({
-                    height: "toggle"
-                }, 300);
+                $(this).next('.sub-menu').toggle();
             });
         }
 

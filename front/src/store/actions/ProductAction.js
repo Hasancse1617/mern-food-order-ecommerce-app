@@ -112,7 +112,7 @@ export const hotdealsProducts = () =>{
             } catch (error) {
                   const {errors} = error.response.data;
                   dispatch({type: REMOVE_PRODUCT_LOADER});
-                  // dispatch({type: SET_PRODUCT_ERRORS, payload:errors});
+                  dispatch({type: SET_PRODUCT_ERRORS, payload:errors});
                   console.log(errors);
             }
       }
@@ -217,3 +217,28 @@ export const popularProducts = () =>{
             }
       }
   }
+
+export const addPayment = (state) =>{
+      return async(dispatch,getState)=>{
+            dispatch({type: SET_PRODUCT_LOADER});
+            try {
+                  const {data:{clientSecret}} = await axiosInstance.post(`/front/pay/${state}`);
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+                  return clientSecret;
+            } catch (error) {
+                  return error;
+            }
+      }
+}
+
+export const orderStatusCannge = (state) =>{
+      return async(dispatch,getState)=>{
+            // dispatch({type: SET_PRODUCT_LOADER});
+            try {
+                  const {data:{msg}} = await axiosInstance.post(`/front/change-order-status`, state);
+                  dispatch({type: REMOVE_PRODUCT_LOADER});
+            } catch (error) {
+                  console.log(error);
+            }
+      }
+}

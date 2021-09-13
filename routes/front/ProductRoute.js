@@ -1,5 +1,5 @@
 const app = require('express');
-const { popularProducts, allProduct, hotProducts, singleProduct, relatedProducts, sizePrice, addToCart, fetchCartItems, updateCartItem, deleteCartItem, applyCoupon, deliveryAddress, Checkout } = require('../../controllers/front/ProductController');
+const { changeOrderStatus, popularProducts, allProduct, hotProducts, singleProduct, relatedProducts, sizePrice, addToCart, fetchCartItems, updateCartItem, deleteCartItem, applyCoupon, deliveryAddress, Checkout } = require('../../controllers/front/ProductController');
 const { addReview, allReview, addHeart, allWishlist, deleteWishlist } = require('../../controllers/front/ReviewController');
 const router = app.Router();
 const auth = require('../../utils/auth');
@@ -17,6 +17,7 @@ router.get("/delete-cart-item/:cartId", auth, deleteCartItem);
 router.post("/apply-coupon", auth, applyCoupon);
 router.get("/delivery-address/:user_id", auth, deliveryAddress);
 router.post("/checkout", auth, Checkout);
+router.post("/change-order-status", auth, changeOrderStatus);
 
 //Review route
 router.post("/all-review", auth, allReview);

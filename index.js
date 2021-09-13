@@ -14,6 +14,7 @@ const frontProduct = require('./routes/front/ProductRoute');
 const frontPost = require('./routes/front/PostRoute');
 const frontUser = require('./routes/front/UserRoute');
 const frontBanner = require('./routes/front/BannerRoute');
+const frontPayment = require('./routes/front/PaymentRoute');
 
 
 const app = express();//Connect express
@@ -33,6 +34,7 @@ app.use('/front', frontProduct);
 app.use('/front', frontPost);
 app.use('/front', frontUser);
 app.use('/front', frontBanner);
+app.use('/front', frontPayment);
 
 
 const PORT = process.env.PORT || 5000;

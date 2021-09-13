@@ -1,14 +1,16 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { NavLink } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { fetchCategories } from "../../store/actions/CategoryAction";
 import { fetchCartItems } from "../../store/actions/ProductAction";
 import { fetchWishlists } from "../../store/actions/ReviewAction";
 import { SET_TOTAL_AMOUNT } from "../../store/types/ProductType";
 import { LOGOUT } from "../../store/types/UserType";
+import loadjs from "loadjs";
 
 const Header = () => {
     const dispatch = useDispatch();
+    const {pathname} = useLocation();
     const { categories } = useSelector((state)=>state.CategoryReducer);
     const { user } = useSelector((state)=>state.UserReducer);
     const { wishlists } = useSelector((state)=>state.ReviewReducer);
@@ -24,6 +26,10 @@ const Header = () => {
         })
         dispatch({type: SET_TOTAL_AMOUNT, payload: totalPrice});
     },[cartItems]);
+
+    useEffect(()=>{
+        loadjs('/assets/js/main.js',()=>{});
+    },[pathname]);
 
     useEffect(()=>{
         dispatch(fetchWishlists(user._id));
@@ -101,8 +107,13 @@ const Header = () => {
                                 <li className="phone-contact d-md-block d-none"><i className="ri-phone-fill float-start"></i>
                                     +997 509 153 849
                                 </li>
-                                <li className="menu-cart"><a href="cart.html">CART <span>1</span></a></li>
-                                <li>49.50 $</li>
+                                { !user ? <li><NavLink to={`/user/login`}>Login</NavLink></li>:
+                                <>
+                                    <li className="menu-cart"><NavLink to={`/shop/cart`}>CART <span>{ totalCartItem }</span></NavLink></li>
+                                    <li>{ totalAmount.toFixed(2) } $</li>
+                                    <li><NavLink to={`/shop/wishlist/${user._id}`} title="Wishlist"><i className="fas fa-heart"></i><span>{ wishlists.length }</span></NavLink></li>
+                                    <li><a href="#" onClick={logout}>Logout</a></li>
+                                </>}
                             </ul>
                         </div>
                         <div className="nav-right-part nav-right-part-desktop">                    

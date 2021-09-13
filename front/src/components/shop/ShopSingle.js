@@ -59,13 +59,15 @@ const ShopSingle = () => {
             dispatch({type: REMOVE_PRODUCT_MESSAGE});
             history.push("/shop/cart");
         }
+    },[message]);
+    useEffect(()=>{
         if(productErrors.length > 0){
             productErrors.map((error)=>{
                 toast.error(error.msg);
             });
             dispatch({type: REMOVE_PRODUCT_ERRORS});
         }
-    },[productErrors,message]);
+    },[productErrors]);
     return !htmlloading? (
         <><Toaster position="top-right" reverseOrder={true}/>
             {loading ? <Loader/>:''}

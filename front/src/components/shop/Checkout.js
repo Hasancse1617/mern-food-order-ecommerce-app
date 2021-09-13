@@ -31,6 +31,10 @@ const Checkout = () => {
         })
     }
     const handleSubmit = () =>{
+        if(payment_gateway === 'PayPal'){
+            toast.error("This payment method not available");
+            return false;
+        }
         if(cartItems.length < 1){
             toast.error("Your Cart is Empty...")
             history.push("/shop/cart");
@@ -44,13 +48,16 @@ const Checkout = () => {
         dispatch(fetchDeliveryAddress(user._id));
         dispatch(fetchCartItems(user._id));
         setHtmlLoading(false);
-        
     },[]);
     useEffect(()=>{
         if(message){
             dispatch(fetchCartItems(user._id));
-            // history.push("/shop/thanks");
-            $('#myModal').modal('show');
+            if(payment_gateway === 'COD'){
+                history.push("/shop/thanks");
+            }
+            if(payment_gateway === 'Card'){
+                document.getElementById('modal_open').click();
+            }
         }
     },[message]);
     useEffect(()=>{
@@ -77,8 +84,9 @@ const Checkout = () => {
     },[productErrors]);
     return !htmlloading? (
         <>
-        {loading ? <Loader/> :''}  
-        <StripeContainer/>
+        {loading ? <Loader/> :''} 
+        
+        <StripeContainer payment_gateway={payment_gateway} />
         <Toaster position="top-right" reverseOrder={true}/>
            <section class="breadcrumb-area">
             <div class="banner-bg-img"></div>
@@ -108,6 +116,7 @@ const Checkout = () => {
                 <div class="row justify-content-center">
                     <div class="col-lg-7">
                         <div class="bill-payment-wrap">
+                        <button id="modal_open" style={{display: "none"}} type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">dddddd</button> 
                             <h5>Billing details
                             </h5>
                             <form class="default-form-wrap style-2">

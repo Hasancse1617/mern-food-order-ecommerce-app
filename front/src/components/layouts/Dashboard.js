@@ -21,6 +21,7 @@ const Dashboard = () => {
         dispatch(fetchBanners());
         dispatch(popularProducts());
     },[]);
+    
     return !htmlloading? (
         <>
             <section className="banner-area">

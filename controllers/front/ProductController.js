@@ -168,7 +168,7 @@ module.exports.addToCart = async(req,res) =>{
     }
     
     if(errors.length !== 0){
-        return res.status(400).json({errors});
+        return res.status(500).json({errors});
     }else{
         try {
             const response = await Cart.create({
@@ -217,7 +217,7 @@ module.exports.updateCartItem = async(req,res) =>{
         errors.push({msg: 'Quantity must be greater than 1'});
     }
     if(errors.length !== 0){
-        return res.status(400).json({errors});
+        return res.status(500).json({errors});
     }else{
         try {
             const response = await Cart.findByIdAndUpdate({_id:cartId},{quantity});
@@ -309,8 +309,14 @@ module.exports.Checkout = async(req,res) =>{
         try {
             const grand_total = totalAmount - couponAmount;
             let payment_method;
+            let orderStatus;
             if(payment_gateway === 'COD'){
               payment_method = 'COD';
+              orderStatus = 'New';
+            }
+            if(payment_gateway === 'Card'){
+                payment_method = 'Card';
+                orderStatus = 'Pending';
             }
             const deliveryAddress = await DeliveryAddress.findOne({customer_id: user_id});
             if(deliveryAddress){
@@ -318,7 +324,7 @@ module.exports.Checkout = async(req,res) =>{
             }else{
                 const newaddress = await DeliveryAddress.create({customer_id: user_id,name,email,mobile,address,zipcode,district,country});
             }
-            const order = await Order.create({customer_id: user_id, name, email, mobile, zipcode, address, district, country, shipping_charge: 0, coupon_code: couponCode, coupon_amount: couponAmount, payment_method, payment_gateway, grand_total, order_status: 'New'});
+            const order = await Order.create({customer_id: user_id, name, email, mobile, zipcode, address, district, country, shipping_charge: 0, coupon_code: couponCode, coupon_amount: couponAmount, payment_method, payment_gateway, grand_total, order_status: orderStatus});
             cartItems.forEach(async(item) => {
                 const attr_price = (item.attr_price - (item.attr_price * item.product_id.product_discount)/100).toFixed(2);
                 const orderProduct = await OrdersProduct.create({
@@ -335,10 +341,32 @@ module.exports.Checkout = async(req,res) =>{
                 const stockPro = attrStock.stock - item.quantity;
                 const productAttr = await ProductAttribute.findOneAndUpdate({product_id: item.product_id._id, size: item.size},{stock: stockPro});
             });
-            const deleteCart = await Cart.deleteMany({customer_id: user_id});
+            if(payment_gateway === 'COD'){
+                const deleteCart = await Cart.deleteMany({customer_id: user_id});
+            }
             return res.status(200).json({msg: 'Thanks for your order', order_id: order._id});
         } catch (error) {
             return res.status(500).json({errors: [{msg: error.message}]});
         }
+    }
+}
+
+module.exports.changeOrderStatus = async(req,res) =>{
+    const { status, order_id, user_id } = req.body;
+    let order_status;
+    if(status === 'success'){
+        order_status = 'Paid'
+    }
+    else{
+        order_status = 'Cancelled'
+    }
+    try {
+        if(status === 'success'){
+            const deleteCart = await Cart.deleteMany({customer_id: user_id});
+        }
+        const response = await Order.findByIdAndUpdate(order_id, {order_status: order_status});
+        return res.status(200).json({msg: 'Update order status'});
+    } catch (error) {
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
