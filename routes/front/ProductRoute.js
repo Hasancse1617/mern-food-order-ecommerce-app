@@ -20,7 +20,7 @@ router.post("/checkout", auth, Checkout);
 router.post("/change-order-status", auth, changeOrderStatus);
 
 //Review route
-router.post("/all-review", auth, allReview);
+router.post("/all-review", allReview);
 router.post("/add-review", auth, addReview);
 router.post("/add-heart", auth, addHeart);
 router.get("/all-wishlist/:id", auth, allWishlist);

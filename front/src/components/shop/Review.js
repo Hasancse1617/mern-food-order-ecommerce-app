@@ -37,7 +37,7 @@ const Review = ({code}) => {
         dispatch(reviewAction({rating, user_id: user._id, code, review}));
     }
     useEffect(()=>{
-        dispatch(fetchReview({code, user_id: user._id}));
+        dispatch(fetchReview({code}));
     },[]);
     useEffect(()=>{
         if(message){

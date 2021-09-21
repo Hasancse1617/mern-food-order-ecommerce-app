@@ -49,24 +49,30 @@ const Sidebar = () => {
                         </p>
                         </a>
                         <ul className="nav nav-treeview">
-                        <li className="nav-item">
-                            <NavLink exact to="/admin/user/all?page=1" activeClassName="active" className={pathname==='/admin/user/create'?'active nav-link':'nav-link'}>
-                            <i className="far fa-circle nav-icon"></i>
-                            <p>All User</p>
-                            </NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink exact to={`/admin/user/update-profile/${user._id}`} activeClassName="active" className="nav-link">
-                            <i className="far fa-circle nav-icon"></i>
-                            <p>Update Profile</p>
-                            </NavLink>
-                        </li>
-                        <li className="nav-item">
-                            <NavLink exact to={`/admin/user/update-password/${user._id}`} activeClassName="active" className="nav-link">
-                            <i className="far fa-circle nav-icon"></i>
-                            <p>Update Password</p>
-                            </NavLink>
-                        </li>                          
+                            <li className="nav-item">
+                                <NavLink exact to="/admin/user/all?page=1" activeClassName="active" className={pathname==='/admin/user/create'?'active nav-link':'nav-link'}>
+                                <i className="far fa-circle nav-icon"></i>
+                                <p>All User</p>
+                                </NavLink>
+                            </li>
+                            <li className="nav-item">
+                                <NavLink exact to={`/admin/user/update-profile/${user._id}`} activeClassName="active" className="nav-link">
+                                <i className="far fa-circle nav-icon"></i>
+                                <p>Update Profile</p>
+                                </NavLink>
+                            </li>
+                            <li className="nav-item">
+                                <NavLink exact to={`/admin/user/update-password/${user._id}`} activeClassName="active" className="nav-link">
+                                <i className="far fa-circle nav-icon"></i>
+                                <p>Update Password</p>
+                                </NavLink>
+                            </li>
+                            <li className="nav-item">
+                                <NavLink exact to={`/admin/user/roles-permission`} activeClassName="active" className={ pathname==='/admin/user/add-role-permission' || pathname.includes('/admin/user/edit-role-permission/') ?'nav-link active':'nav-link'}>
+                                <i className="far fa-circle nav-icon"></i>
+                                <p>Roles Permission</p>
+                                </NavLink>
+                            </li>                          
                         </ul>
                     </li>
                     <li className="nav-item has-treeview menu-open">
@@ -94,6 +100,12 @@ const Sidebar = () => {
                             <NavLink exact to="/admin/product/all?page=1" activeClassName="active" className={ pathname==='/admin/product/create' || pathname.includes('/admin/product/edit/') || pathname.includes('/admin/product/images/') || pathname.includes('/admin/product/attribute/')?'nav-link active':'nav-link'}>
                             <i className="far fa-circle nav-icon"></i>
                             <p>Products</p>
+                            </NavLink>
+                        </li>
+                        <li className="nav-item">
+                            <NavLink exact to="/admin/order/all?page=1" activeClassName="active" className={ pathname.includes('/admin/order/details/')?'nav-link active':'nav-link'}>
+                            <i className="far fa-circle nav-icon"></i>
+                            <p>Orders</p>
                             </NavLink>
                         </li>
                         <li className="nav-item">

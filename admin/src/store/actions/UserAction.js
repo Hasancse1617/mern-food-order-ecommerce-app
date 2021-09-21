@@ -1,13 +1,12 @@
 import axiosInstance from "../../helper/axiosInstance";
 import { SET_TOKEN } from "../types/AuthType";
-import { REMOVE_USER_ERRORS, REMOVE_USER_LOADER, SET_SINGLE_USER, SET_USERS, SET_USER_ERRORS, SET_USER_LOADER, SET_USER_MESSAGE, SET_USER_REDIRECT } from "../types/UserType";
+import { REMOVE_USER_ERRORS, REMOVE_USER_LOADER, SET_PERMISSIONS, SET_ROLES, SET_SINGLE_ROLE, SET_SINGLE_USER, SET_UNAUTHORIZED_ACCESS, SET_USERS, SET_USER_ERRORS, SET_USER_LOADER, SET_USER_MESSAGE, SET_USER_REDIRECT } from "../types/UserType";
 
-
-export const fetchUsers = (page) =>{
+export const fetchUsers = (page,user_type) =>{
       return async(dispatch,getState)=>{
             dispatch({type: SET_USER_LOADER});
             try {
-                  const {data: {response, count, perPage}} = await axiosInstance.get(`/all-user/${page}`);
+                  const {data: {response, count, perPage}} = await axiosInstance.get(`/all-user/${user_type}/${page}`);
                   
                   dispatch({type: SET_USERS, payload: {response,count,perPage}});
                   dispatch({type: REMOVE_USER_LOADER});
@@ -15,7 +14,9 @@ export const fetchUsers = (page) =>{
                   const {errors} = error.response.data;
                   dispatch({type: REMOVE_USER_LOADER});
                   dispatch({type: SET_USER_ERRORS, payload:errors});
-                  console.log(errors);
+                  if(error.response.status === 403){
+                        dispatch({type: SET_UNAUTHORIZED_ACCESS});
+                  }
             }
       }
   }
@@ -105,3 +106,90 @@ export const deleteAction = (id) =>{
               }
         }
   }
+
+export const fetchRole = () =>{
+      return async(dispatch,getState)=>{
+            // const {AuthReducer: {token}} = getState();
+            dispatch({type: SET_USER_LOADER});
+            try {
+                  const { data:{response, permissions} } = await axiosInstance.get(`/all-role`); 
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_ROLES, payload: {response,permissions}}); 
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_USER_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+}
+
+export const addRole = (state) =>{
+      return async(dispatch,getState)=>{
+            // const {AuthReducer: {token}} = getState();
+            dispatch({type: SET_USER_LOADER});
+            try {
+                  const { data:{msg} } = await axiosInstance.post(`/add-role`, state); 
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_USER_MESSAGE, payload: msg});
+                  dispatch({type: SET_USER_REDIRECT}); 
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_USER_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+}
+
+export const fetchPermission = () =>{
+      return async(dispatch,getState)=>{
+            // const {AuthReducer: {token}} = getState();
+            dispatch({type: SET_USER_LOADER});
+            try {
+                  const { data:{response} } = await axiosInstance.get(`/all-permission`); 
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_PERMISSIONS, payload: response}); 
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_USER_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+}
+
+export const editRole = (id) =>{
+      return async(dispatch,getState)=>{
+            // const {AuthReducer: {token}} = getState();
+            dispatch({type: SET_USER_LOADER});
+            try {
+                  const { data:{response} } = await axiosInstance.get(`/edit-role/${id}`); 
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_SINGLE_ROLE, payload: response}); 
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_USER_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+}
+
+export const updateRole = (state, id) =>{
+      return async(dispatch,getState)=>{
+            // const {AuthReducer: {token}} = getState();
+            dispatch({type: SET_USER_LOADER});
+            try {
+                  const { data:{msg} } = await axiosInstance.post(`/update-role/${id}`, state); 
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_USER_MESSAGE, payload: msg});
+                  dispatch({type: SET_USER_REDIRECT}); 
+            } catch (error) {
+                  const {errors} = error.response.data;
+                  dispatch({type: REMOVE_USER_LOADER});
+                  dispatch({type: SET_USER_ERRORS, payload:errors});
+                  console.log(errors);
+            }
+      }
+}

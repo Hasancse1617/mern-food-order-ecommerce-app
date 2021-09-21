@@ -16,7 +16,7 @@ module.exports.allProduct = async(req, res) =>{
         const response = await Product.find().populate('category_id','category_name').skip(skip).limit(perPage).sort({updatedAt:'descending'});
         return res.status(200).json({response: response, count, perPage});
     } catch (error) {
-        return res.status(500).json({errors: error, msg: error.message});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -25,7 +25,7 @@ module.exports.allCategories = async(req, res) =>{
         const response = await Category.find().sort({updatedAt:'descending'});
         return res.status(200).json({response: response});
     } catch (error) {
-        return res.status(500).json({errors: error, msg: error.message});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -105,7 +105,7 @@ module.exports.editProduct = async(req, res) =>{
         return res.status(200).json({response});
         
     } catch (error) {
-        return res.status(500).json({errors:error});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -221,7 +221,7 @@ module.exports.deleteProduct = async (req,res)=>{
         });
         return res.status(200).json({message: 'Product deleted successfully'});
     }catch(error){
-        return res.status(500).json({errors:error});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
     
 }
@@ -251,7 +251,7 @@ module.exports.allImage = async(req, res) =>{
         return res.status(200).json({response});
         
     } catch (error) {
-        return res.status(500).json({errors:error});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -314,7 +314,7 @@ module.exports.deleteProductImage = async(req, res) =>{
         });
         return res.status(200).json({message: 'Product Image deleted successfully'});
     }catch(error){
-        return res.status(500).json({errors:error});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -343,7 +343,7 @@ module.exports.allAttribute = async(req, res) =>{
         return res.status(200).json({response});
         
     } catch (error) {
-        return res.status(500).json({errors:error});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 

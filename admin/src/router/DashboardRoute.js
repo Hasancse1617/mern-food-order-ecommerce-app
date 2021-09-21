@@ -9,6 +9,7 @@ import ProductRoute from "../components/product/ProductRoute";
 import PostRoute from "../components/post/PostRoute";
 import CouponRoute from "../components/coupon/CouponRoute";
 import BannerRoute from "../components/banner/BannerRoute";
+import OrderRoute from "../components/order/OrderRoute";
 
 const DashboardRoute = () => {
     const { path } = useRouteMatch();
@@ -22,6 +23,7 @@ const DashboardRoute = () => {
                 <Route path={`${path}/banner`} component={BannerRoute}></Route>
                 <Route path={`${path}/category`} component={CategoryRoute}></Route>
                 <Route path={`${path}/product`} component={ProductRoute}></Route>
+                <Route path={`${path}/order`} component={OrderRoute}></Route>
                 <Route path={`${path}/post`} component={PostRoute}></Route>
                 <Route path={`${path}/coupon`} component={CouponRoute}></Route>
             </Switch>

@@ -7,6 +7,9 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const User = require('../../models/User');
 const { SendEmail } = require('../../utils/email');
+const RoleHasPermission = require('../../models/RoleHasPermission');
+const Role = require('../../models/Role');
+const Permission = require('../../models/Permission');
 require('dotenv').config();
 
 const createToken = (user, expiresToken)=>{
@@ -46,7 +49,7 @@ module.exports.userLogin= async (req, res)=>{
              return res.status(404).json({errors:[{msg:'Email not found'}]});
         }
     }catch(error){
-       console.log(error);
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -119,7 +122,7 @@ module.exports.createUser = async (req,res)=>{
 
                         return res.status(200).json({msg: 'User created successfully', response});
                     } catch (error) {
-                        return res.status(500).json({errors: error, msg: error.message});
+                        return res.status(500).json({errors: [{msg: error.message}]});
                     }
                 }
             })
@@ -128,6 +131,14 @@ module.exports.createUser = async (req,res)=>{
 }
 
 module.exports.allUser = async(req, res) =>{
+    const user_type = req.params.user_type;
+    const role = await Role.findOne({name: user_type});
+    const permission = await Permission.findOne({name: 'Admin.Create'});
+    const permissionRole = await RoleHasPermission.findOne({role_id: role._id});
+    if(!permissionRole.permission_id.includes(permission._id)){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const page = req.params.page;
     const perPage = 6;
     const skip = (page - 1) * perPage;
@@ -136,7 +147,7 @@ module.exports.allUser = async(req, res) =>{
         const response = await User.find().skip(skip).limit(perPage).sort({updatedAt:'descending'});
         return res.status(200).json({response: response, count, perPage});
     } catch (error) {
-        return res.status(500).json({errors: error, msg: error.message});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -152,7 +163,7 @@ module.exports.deleteUser = async (req,res)=>{
         });
         return res.status(200).json({msg: 'User deleted successfully'});
     }catch(error){
-        return res.status(500).json({errors:error});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
     
 }
@@ -164,7 +175,7 @@ module.exports.editUser = async (req, res) =>{
         return res.status(200).json({response});
         
     } catch (error) {
-        return res.status(500).json({errors:error});
+        return res.status(500).json({errors: [{msg: error.message}]});
     }
 }
 
@@ -203,7 +214,7 @@ module.exports.updateUser = async (req, res) =>{
                     const token = createToken(response, expiresToken);
                     return res.status(200).json({msg: 'Your Profile updated successfully', response, token});
                 } catch (error) {
-                    return res.status(500).json({errors: error, msg: error.message});
+                    return res.status(500).json({errors: [{msg: error.message}]});
                 }
             }
             //Update without Image
@@ -226,7 +237,7 @@ module.exports.updateUser = async (req, res) =>{
                             const token = createToken(response, expiresToken);
                             return res.status(200).json({msg: 'Your Profile updated successfully', response, token});
                         } catch (error) {
-                            return res.status(500).json({errors: error, msg: error.message});
+                            return res.status(500).json({errors: [{msg: error.message}]});
                         }
                     }
                 })
@@ -271,7 +282,7 @@ module.exports.updateUserPassword = async(req,res) =>{
                 return res.status(200).json({msg: 'Your Password updated successfully',response});
             }
         } catch (error) {
-            return res.status(500).json({errors: error, msg: error.message});
+            return res.status(500).json({errors: [{msg: error.message}]});
         }
         
     }
@@ -301,7 +312,7 @@ module.exports.forgotPassword = async(req, res) =>{
             const response = SendEmail(email);
             return res.status(200).json({msg: 'Check your email & change your password',response});
         } catch (error) {
-            return res.status(500).json({errors: error, msg: error.message});
+            return res.status(500).json({errors: [{msg: error.message}]});
         }
     }
     
@@ -344,7 +355,7 @@ module.exports.resetPassword = async(req, res) =>{
             const response = await User.findOneAndUpdate({email},{password: hash}, {new: true});
             return res.status(200).json({msg: 'Your Password updated successfully', response });
         } catch (error) {
-            return res.status(500).json({errors: error.message});
+            return res.status(500).json({errors: [{msg: error.message}]});
         }
     } 
 }

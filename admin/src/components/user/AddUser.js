@@ -3,13 +3,13 @@ import { NavLink } from "react-router-dom";
 import { Helmet } from "react-helmet";
 import toast, {Toaster} from "react-hot-toast";
 import { useDispatch, useSelector } from 'react-redux';
-import { createAction } from "../../store/actions/UserAction";
+import { createAction, fetchRole } from "../../store/actions/UserAction";
 import { REMOVE_USER_ERRORS } from "../../store/types/UserType";
 
 
 const AddUser = (props) => {
     const dispatch = useDispatch();
-    const { userErrors,redirect } = useSelector((state)=> state.UserReducer);
+    const { userErrors,redirect, roles } = useSelector((state)=> state.UserReducer);
     const [state,setState] = useState({
         name:'',
         email:'',
@@ -51,7 +51,9 @@ const AddUser = (props) => {
         // console.log(user_image);
         dispatch(createAction(formData));
     }
-
+    useEffect(()=>{
+        dispatch(fetchRole());
+    },[]);
     useEffect(()=>{
         if(redirect){
             props.history.push('/admin/user/all?page=1');
@@ -99,9 +101,9 @@ const AddUser = (props) => {
                         <div className="col-sm-8">
                           <select class="form-control" name="user_type" onChange={handleInput}>
                               <option value="">Select User Type</option>
-                              <option value="Super Admin">Super Admin</option>
-                              <option value="Admin">Admin</option>
-                              <option value="User">User</option>
+                              {roles.map((role)=>(
+                                <option value={role.name}>{ role.name }</option>
+                              ))}
                           </select>
                         </div> 
                     </div>

@@ -32,10 +32,14 @@ const Header = () => {
     },[pathname]);
 
     useEffect(()=>{
-        dispatch(fetchWishlists(user._id));
-        dispatch(fetchCategories());
-        dispatch(fetchCartItems(user._id));
+        if(user){
+            dispatch(fetchWishlists(user._id));
+            dispatch(fetchCartItems(user._id));
+        }
     },[user]);
+    useEffect(()=>{
+        dispatch(fetchCategories());
+    },[]);
     return (
         <> 
            <div className="preloader" id="preloader">

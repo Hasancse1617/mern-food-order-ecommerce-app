@@ -30,7 +30,7 @@ import { LOGOUT } from '../store/types/UserType';
     if(token){
       const verify = VerifyToken(token);
     }else{
-       store.dispatch({type: LOGOUT});
+      //  store.dispatch({type: LOGOUT});
     }
     config.headers.Authorization =  token ? `Bearer ${token}` : '';
     return config;

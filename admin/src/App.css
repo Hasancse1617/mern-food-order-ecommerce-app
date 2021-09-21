@@ -24,3 +24,6 @@ nav.main-header {
 .bg-danger {
   background-color: #a0202c!important;
 }
+#order td{
+  padding: 0.55rem;
+}

@@ -45,7 +45,7 @@ const UpdatePassword = (props) => {
             })
           dispatch({type: REMOVE_USER_MESSAGE});
         }
-        if(userErrors.length > 0){
+        if(userErrors && userErrors.length > 0){
             userErrors.map((error)=>{
                 toast.error(error.msg);
             });

@@ -6,14 +6,15 @@ import { NavLink } from "react-router-dom";
 import Swal from 'sweetalert2'
 import Pagination from "../pagination/Pagination";
 import Loader from "../loader/Loader";
-import { REMOVE_USER_MESSAGE, REMOVE_USER_REDIRECT } from "../../store/types/UserType";
+import { REMOVE_UNAUTHORIZED_ACCESS, REMOVE_USER_MESSAGE, REMOVE_USER_REDIRECT } from "../../store/types/UserType";
 import { deleteAction, fetchUsers } from "../../store/actions/UserAction";
+import Forbidden from "./Forbidden";
 
 
 const AllUser = (props) => {
 
-  const {message,loading,users,count,perPage,pageLink} = useSelector((state)=> state.UserReducer);
-  const {user:{_id}} = useSelector((state)=> state.AuthReducer);
+  const {message,loading,users,count,perPage,pageLink,unauthorized} = useSelector((state)=> state.UserReducer);
+  const {user:{_id, user_type}} = useSelector((state)=> state.AuthReducer);
   const dispatch = useDispatch();
   const query = new URLSearchParams(props.location.search);
   const page = query.get('page')
@@ -45,14 +46,21 @@ const AllUser = (props) => {
         })
       dispatch({type: REMOVE_USER_MESSAGE});
       dispatch({type: REMOVE_USER_REDIRECT});
-      dispatch(fetchUsers(page));
+      dispatch(fetchUsers(page,user_type));
     }
   },[message]);
 
   useEffect(()=>{
-      dispatch(fetchUsers(page));
+      dispatch(fetchUsers(page,user_type));
   },[page]);
-
+  useEffect(()=>{
+      return ()=>{
+        dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+      }
+  },[]);
+   if (unauthorized) {
+      return <Forbidden/>
+   }
     return (
         <div class="content-wrapper">
         <Helmet>

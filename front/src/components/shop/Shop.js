@@ -70,7 +70,7 @@ const Shop = (props) => {
             reviewErrors.map((error)=>{
                 toast.error(error.msg);
             });
-            dispatch({type: REMOVE_REVIEW_ERRORS});
+            // dispatch({type: REMOVE_REVIEW_ERRORS});
         }
     },[message,reviewErrors]);
     return !htmlloading? (

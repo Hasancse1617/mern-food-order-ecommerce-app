@@ -1,5 +1,6 @@
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {LOGOUT} from '../../store/types/AuthType';
+
 const Header = () =>{
     const dispatch = useDispatch();
     const logout = async () =>{

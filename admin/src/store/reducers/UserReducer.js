@@ -1,4 +1,4 @@
-import { REMOVE_SINGLE_USER, REMOVE_USER_ERRORS, REMOVE_USER_LOADER, REMOVE_USER_MESSAGE, REMOVE_USER_REDIRECT, SET_SINGLE_USER, SET_USERS, SET_USER_ERRORS, SET_USER_LOADER, SET_USER_MESSAGE, SET_USER_REDIRECT } from "../types/UserType";
+import { REMOVE_PERMISSIONS, REMOVE_SINGLE_USER, REMOVE_UNAUTHORIZED_ACCESS, REMOVE_USER_ERRORS, REMOVE_USER_LOADER, REMOVE_USER_MESSAGE, REMOVE_USER_REDIRECT, SET_PERMISSIONS, SET_ROLES, SET_SINGLE_ROLE, SET_SINGLE_USER, SET_UNAUTHORIZED_ACCESS, SET_USERS, SET_USER_ERRORS, SET_USER_LOADER, SET_USER_MESSAGE, SET_USER_REDIRECT } from "../types/UserType";
 
 const initState = {
     loading: false,
@@ -11,6 +11,11 @@ const initState = {
     perPage: '',
     pageLink: '',
     status: false,
+    roles: [],
+    permissions: [],
+    singlerole: [],
+    rolePermissions: [],
+    unauthorized: false,
 }
 
 const UserReducer = (state=initState, action) =>{
@@ -46,6 +51,24 @@ const UserReducer = (state=initState, action) =>{
     }
     else if(action.type === REMOVE_SINGLE_USER){
         return{...state, status: false };
+    }
+    else if(action.type === SET_ROLES){
+        return{...state, roles: action.payload.response, rolePermissions: action.payload.permissions };
+    }
+    else if(action.type === SET_PERMISSIONS){
+        return{...state, permissions: action.payload };
+    }
+    else if(action.type === SET_SINGLE_ROLE){
+        return{...state, singlerole: action.payload, status: true };
+    }
+    else if(action.type === REMOVE_PERMISSIONS){
+        return{...state, permissions: [], status: false };
+    }
+    else if(action.type === SET_UNAUTHORIZED_ACCESS){
+        return{...state, unauthorized: true };
+    }
+    else if(action.type === REMOVE_UNAUTHORIZED_ACCESS){
+        return{...state, unauthorized: false };
     }
     else{
         return state;

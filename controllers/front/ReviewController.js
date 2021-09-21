@@ -28,10 +28,10 @@ module.exports.addReview = async(req,res)=>{
 }
 
 module.exports.allReview = async(req,res) =>{
-    const {code,user_id} = req.body;
+    const {code} = req.body;
     try {
         const product = await Product.findOne({product_code: code});
-        const response = await Review.find({customer_id: user_id, product_id: product._id}).populate('customer_id');
+        const response = await Review.find({ product_id: product._id}).populate('customer_id');
         return res.status(200).json({ response });
     } catch (error) {
         return res.status(500).json({errors: [{msg: error.message}]});
