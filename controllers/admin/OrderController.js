@@ -2,8 +2,16 @@ const Order = require('../../models/Order');
 const Customer = require('../../models/Customer');
 const OrdersProduct = require('../../models/OrdersProduct');
 const OrderLog = require('../../models/OrderLog');
+const { rolePermission } = require("../../utils/permission");
 
 module.exports.orders = async(req,res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Order.View');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const page = req.params.page;
     const perPage = 10;
     const skip = (page - 1) * perPage;
@@ -17,6 +25,13 @@ module.exports.orders = async(req,res) =>{
 }
 
 module.exports.singleOrder = async(req,res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Order.Edit');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try {
         const order = await Order.findOne({_id:id});

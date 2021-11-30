@@ -3,12 +3,12 @@ const { allProduct, allCategories, createProduct, statusProduct, editProduct, up
 const router = app.Router();
 const auth = require('../../utils/auth');
 
-router.get("/all-product/:page", auth, allProduct);
+router.get("/all-product/:user_type/:page", auth, allProduct);
 router.get("/all-categories", auth, allCategories);
-router.post("/create-product", auth, createProduct);
-router.get("/edit-product/:id", auth, editProduct);
+router.post("/create-product/:user_type", auth, createProduct);
+router.get("/edit-product/:user_type/:id", auth, editProduct);
 router.post("/update-product/:id", auth, updateProduct);
-router.get("/delete-product/:id", auth, deleteProduct);
+router.get("/delete-product/:user_type/:id", auth, deleteProduct);
 router.post("/status-product", auth, statusProduct);
 //All Image Route
 router.get("/all-images/:id", auth, allImage);

@@ -9,13 +9,19 @@ import Swal from 'sweetalert2'
 import $ from 'jquery';
 import { deleteAction, fetchPosts, statusAction } from '../../store/actions/PostAction';
 import { REMOVE_POST_MESSAGE, REMOVE_POST_REDIRECT } from "../../store/types/PostType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 class Post extends Component{
     constructor(props){
         super(props);
     }
     componentDidMount(){
-      this.props.dispatch(fetchPosts(this.props.page));
+      const { user } = this.props.AuthReducer;
+      this.props.dispatch(fetchPosts(this.props.page, user.user_type));
+    }
+    componentWillUnmount(){
+      this.props.dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
     }
     componentDidUpdate = (prevProps) =>{
         const { message } = this.props.state;
@@ -37,6 +43,7 @@ class Post extends Component{
         }
     }
     deletePost = (id) =>{
+      const { user } = this.props.AuthReducer;
       Swal.fire({
         title: 'Are you sure?',
         text: "You won't be able to revert this!",
@@ -47,7 +54,7 @@ class Post extends Component{
         confirmButtonText: 'Yes, delete it!'
       }).then((result) => {
         if (result.isConfirmed) {
-          this.props.dispatch(deleteAction(id));
+          this.props.dispatch(deleteAction(id, user.user_type));
         }
       })
     }
@@ -61,6 +68,11 @@ class Post extends Component{
     }
     render(){
       const {loading,posts,perPage,count,pageLink} = this.props.state;
+      const { unauthorized } = this.props.AuthReducer;
+
+      if (unauthorized) {
+        return <Forbidden/>
+      }
         return(
           <div class="content-wrapper">
           <Helmet>
@@ -132,6 +144,6 @@ const mapStateToProps = (state, ownProps) =>{
     // const { loading, posts, perPage, count, pageLink } = state.PostReducer;
     const query = new URLSearchParams(ownProps.location.search);
     const page = query.get('page');
-    return{ state: state.PostReducer, page};
+    return{ state: state.PostReducer, page, AuthReducer: state.AuthReducer };
 }
 export default connect(mapStateToProps)(Post);

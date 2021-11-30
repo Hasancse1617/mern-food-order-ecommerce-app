@@ -2,9 +2,17 @@ const formidable = require('formidable');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const sharp = require('sharp');
+const { rolePermission } = require("../../utils/permission");
 const Banner = require('../../models/Banner');
 
 module.exports.allBanner = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Banner.View');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const page = req.params.page;
     const perPage = 6;
     const skip = (page - 1) * perPage;
@@ -18,6 +26,13 @@ module.exports.allBanner = async(req, res) =>{
 }
 
 module.exports.createBanner = async(req,res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Banner.Create');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const form = formidable({ multiples: true });
     form.parse(req, async(err, fields, files) =>{
         const {title, btn_text, btn_url } = fields;
@@ -75,6 +90,13 @@ module.exports.createBanner = async(req,res) =>{
 }
 
 module.exports.editBanner = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Banner.Edit');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try {
         const response = await Banner.findOne({_id:id});
@@ -161,6 +183,13 @@ module.exports.updateBanner = async(req, res) =>{
 }
 
 module.exports.deleteBanner = async (req,res)=>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Banner.Delete');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try{
         const {image} = await Banner.findOne({_id:id});

@@ -8,11 +8,14 @@ import { useEffect } from "react";
 import { REMOVE_COUPON_MESSAGE, REMOVE_COUPON_REDIRECT, REMOVE_SINGLE_COUPON } from "../../store/types/CouponType";
 import { deleteAction, fetchCoupons, statusAction } from "../../store/actions/CouponAction";
 import { useDispatch, useSelector } from "react-redux";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 const Coupon = (props) => {
   const dispatch = useDispatch();
   const query = new URLSearchParams(props.location.search);
   const page = query.get('page')
+  const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
   const { message, coupons, loading } = useSelector((state)=>state.CouponReducer);
   const couponStatus = () =>{
       $(document).on('click', '.updateCouponStatus', function(){
@@ -48,15 +51,22 @@ const Coupon = (props) => {
           })
         dispatch({type: REMOVE_COUPON_MESSAGE});
         dispatch({type: REMOVE_COUPON_REDIRECT});
-        dispatch(fetchCoupons(page));
+        dispatch(fetchCoupons(page, user_type));
       }
     },[message]);
     useEffect(()=>{
-        dispatch(fetchCoupons(page));
+        dispatch(fetchCoupons(page, user_type));
     },[page]);
     useEffect(()=>{
       dispatch({type: REMOVE_SINGLE_COUPON});
+      return ()=>{
+        dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+      }
     },[]);
+
+    if (unauthorized) {
+      return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

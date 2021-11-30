@@ -7,11 +7,14 @@ import { addRole, fetchPermission } from "../../store/actions/UserAction";
 import { useState } from "react";
 import $ from 'jquery';
 import { REMOVE_USER_ERRORS } from "../../store/types/UserType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 const AddRole = (props) => {
     const dispatch = useDispatch();
     const [info, setInfo] = useState([]);
     const [role, setRole] = useState('');
+    const { user:{user_type}, unauthorized } = useSelector((state)=> state.AuthReducer);
     const { permissions, userErrors, redirect } = useSelector((state)=>state.UserReducer);
     const handleCheck = (e) =>{
         const arr = [];
@@ -74,11 +77,14 @@ const AddRole = (props) => {
     }
     const handleSubmit = (e) =>{
         e.preventDefault();
-        dispatch(addRole({role, permissions: info}));
+        dispatch(addRole({role, permissions: info}, user_type));
     }
     // console.log("Checked", info);
     useEffect(()=>{
         dispatch(fetchPermission());
+        return ()=>{
+            dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
     useEffect(()=>{
         if(redirect){
@@ -91,6 +97,9 @@ const AddRole = (props) => {
             dispatch({type: REMOVE_USER_ERRORS});
         }
     },[userErrors,redirect]);
+    if (unauthorized) {
+        return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

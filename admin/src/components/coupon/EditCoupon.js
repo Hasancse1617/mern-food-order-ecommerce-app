@@ -8,10 +8,13 @@ import moment from 'moment';
 import { REMOVE_COUPON_ERRORS } from "../../store/types/CouponType";
 import { fetchCoupon, updateAction } from "../../store/actions/CouponAction";
 import Loader from "../loader/Loader";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
+import Forbidden from "../forbidden/Forbidden";
 
 const EditCoupon = (props) => {
     const dispatch = useDispatch();
     const {id} = useParams();
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { loading, couponErrors, redirect, status, coupon } = useSelector((state)=>state.CouponReducer);
     const [state,setState] = useState({
         code:'',
@@ -38,7 +41,7 @@ const EditCoupon = (props) => {
         if(redirect){
             props.history.push('/admin/coupon/all?page=1');
         }
-        if(couponErrors.length > 0){
+        if(couponErrors && couponErrors.length > 0){
             couponErrors.map((error)=>{
                 toast.error(error.msg);
             });
@@ -53,8 +56,18 @@ const EditCoupon = (props) => {
                expiry_date: coupon.expiry_date
            });
         }
-        dispatch(fetchCoupon(id));
+        dispatch(fetchCoupon(id, user_type));
     },[status]);
+
+    useEffect(()=>{
+        return ()=>{
+          dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
+      },[]);
+  
+    if (unauthorized) {
+       return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

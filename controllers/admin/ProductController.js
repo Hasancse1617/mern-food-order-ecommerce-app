@@ -3,11 +3,19 @@ const Category = require("../../models/Category");
 const Product = require("../../models/Product");
 const ProductImage = require("../../models/ProductImage");
 const ProductAttribute = require("../../models/ProductAttribute");
+const { rolePermission } = require("../../utils/permission");
 const { v4: uuidv4 } = require('uuid');
 const sharp = require('sharp');
 const fs = require('fs');
 
 module.exports.allProduct = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Product.View');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const page = req.params.page;
     const perPage = 6;
     const skip = (page - 1) * perPage;
@@ -30,6 +38,13 @@ module.exports.allCategories = async(req, res) =>{
 }
 
 module.exports.createProduct = async(req, res) =>{
+     //Role Permission
+     const user_type = req.params.user_type;
+     const permission = await rolePermission(user_type, 'Product.Create');
+     if(!permission){
+         return res.status(403).json({red_zone: 'Unauthorized access'});
+     }
+    
     const form = formidable({ multiples: true });
     form.parse(req, async(err, fields, files) =>{
         const {product_name, category_id, product_code, product_price, product_discount, description, short_desc, featured} = fields;
@@ -99,6 +114,13 @@ module.exports.createProduct = async(req, res) =>{
 }
 
 module.exports.editProduct = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Product.Edit');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try {
         const response = await Product.findOne({_id:id});
@@ -210,6 +232,13 @@ module.exports.updateProduct = async(req, res) =>{
 }
 
 module.exports.deleteProduct = async (req,res)=>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Product.Delete');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try{
         const {product_image} = await Product.findOne({_id:id});

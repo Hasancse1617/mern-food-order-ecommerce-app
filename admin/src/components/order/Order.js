@@ -8,15 +8,26 @@ import toast, {Toaster} from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchOrders } from "../../store/actions/OrderAction";
 import ReactToPrint from "react-to-print";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 const Order = (props) => {
   const dispatch = useDispatch();
   const query = new URLSearchParams(props.location.search);
   const page = query.get('page')
+  const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
   const { orders, loading, perPage, count, pageLink } = useSelector((state)=>state.OrderReducer);
   useEffect(()=>{
-     dispatch(fetchOrders(page));
+     dispatch(fetchOrders(page, user_type));
   },[page]);
+  useEffect(()=>{
+    return ()=>{
+      dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+    }
+  },[]);
+  if (unauthorized) {
+    return <Forbidden/>
+  }
     return (
         <div className="content-wrapper">
         <Helmet>

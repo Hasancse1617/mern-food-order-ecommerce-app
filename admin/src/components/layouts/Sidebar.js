@@ -4,7 +4,7 @@ const Sidebar = () => {
     let { pathname } = useLocation();
     const {user} = useSelector((state)=>state.AuthReducer);
     return (
-        <div>
+        <>
             <aside className="main-sidebar sidebar-dark-primary elevation-4">
                 {/* <!-- Brand Logo --> */}
                 <NavLink to="/admin/dashboard" className="brand-link">
@@ -128,7 +128,7 @@ const Sidebar = () => {
                 </div>
                 {/* <!-- /.sidebar --> */}
             </aside>
-        </div>
+        </>
     );
 }
 

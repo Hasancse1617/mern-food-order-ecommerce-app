@@ -6,11 +6,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { updateAction, fetchCategory } from "../../store/actions/CategoryAction";
 import { REMOVE_CATEGORY_ERRORS } from "../../store/types/CategoryType";
 import Loader from "../loader/Loader";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 
 const EditCategory = (props) => {
     const dispatch = useDispatch();
     const { id } = useParams();
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { loading, categoryErrors, redirect, category, status } = useSelector((state)=> state.CategoryReducer);
     const [url,setUrl] = useState('');
     const [state,setState] = useState({
@@ -53,7 +56,7 @@ const EditCategory = (props) => {
         if(redirect){
             props.history.push('/admin/category/all?page=1');
         }
-        if(categoryErrors.length > 0){
+        if(categoryErrors && categoryErrors.length > 0){
             categoryErrors.map((error)=>{
                 toast.error(error.msg);
             });
@@ -69,8 +72,17 @@ const EditCategory = (props) => {
            setUrl(category.url);
            setPreview(`${process.env.REACT_APP_API_PATH}/images/category_images/${category.category_image}`)
         }
-        dispatch(fetchCategory(id));
+        dispatch(fetchCategory(id, user_type));
     },[status]);
+
+    useEffect(()=>{
+        return ()=>{
+          dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
+    },[]);
+    if (unauthorized) {
+        return <Forbidden/>
+    }
 
     return (
         <div class="content-wrapper">

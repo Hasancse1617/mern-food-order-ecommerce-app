@@ -4,24 +4,34 @@ import toast, {Toaster} from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink } from "react-router-dom";
 import { fetchRole } from "../../store/actions/UserAction";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 import { REMOVE_PERMISSIONS, REMOVE_USER_MESSAGE, REMOVE_USER_REDIRECT } from "../../store/types/UserType";
+import Forbidden from "../forbidden/Forbidden";
 import Loader from "../loader/Loader";
 
 const Roles = () => {
     const dispatch = useDispatch();
+    const { user:{user_type}, unauthorized } = useSelector((state)=> state.AuthReducer);
     const { roles, loading, message, rolePermissions } = useSelector((state)=>state.UserReducer);
     useEffect(()=>{
-        dispatch(fetchRole());
+        dispatch(fetchRole(user_type));
         dispatch({type: REMOVE_PERMISSIONS});
+        return ()=>{
+          dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
     useEffect(()=>{
       if(message){
         toast.success(message);
         dispatch({type: REMOVE_USER_MESSAGE});
         dispatch({type: REMOVE_USER_REDIRECT});
-        dispatch(fetchRole());
+        dispatch(fetchRole(user_type));
       }
     },[message]);
+
+    if (unauthorized) {
+      return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

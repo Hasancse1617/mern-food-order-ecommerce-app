@@ -5,10 +5,13 @@ import toast, {Toaster} from "react-hot-toast";
 import { useDispatch, useSelector } from 'react-redux';
 import { createAction } from "../../store/actions/CategoryAction";
 import { REMOVE_CATEGORY_ERRORS } from "../../store/types/CategoryType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 
 const AddCategory = (props) => {
     const dispatch = useDispatch();
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { categoryErrors,redirect } = useSelector((state)=> state.CategoryReducer);
     const [url,setUrl] = useState('');
     const [state,setState] = useState({
@@ -44,21 +47,28 @@ const AddCategory = (props) => {
         formData.append('category_name',category_name);
         formData.append('category_image',category_image);
         formData.append('url', url);
-        dispatch(createAction(formData));
+        dispatch(createAction(formData, user_type));
     }
 
     useEffect(()=>{
         if(redirect){
             props.history.push('/admin/category/all?page=1');
         }
-        if(categoryErrors.length > 0){
+        if(categoryErrors && categoryErrors.length > 0){
             categoryErrors.map((error)=>{
                 toast.error(error.msg);
             });
             dispatch({type: REMOVE_CATEGORY_ERRORS});
         }
     },[categoryErrors,redirect]);
-
+    useEffect(()=>{
+        return ()=>{
+          dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
+    },[]);
+    if (unauthorized) {
+        return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

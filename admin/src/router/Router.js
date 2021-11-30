@@ -5,7 +5,6 @@ import Login from "../components/auth/Login";
 import ResetPassword from "../components/auth/ResetPassword";
 import OrderPDF from "../components/order/OrderPDF";
 import OrderPrint from "../components/order/OrderPrint";
-import Forbidden from "../components/user/Forbidden";
 import DashboardRoute from "./DashboardRoute";
 import PrivateRoute from "./PrivateRoute";
 import RouteLink from "./RouteLink";
@@ -26,7 +25,6 @@ const Router = () => {
                <RouteLink exact path="/admin/forgot-password" component={ForgotPassword}></RouteLink>
                <RouteLink exact path="/admin/reset-password/:token" component={ResetPassword}></RouteLink>
                {/* Order PDF Route */}
-               <PrivateRoute exact path="/admin/forbidden" component={Forbidden}></PrivateRoute>
                <PrivateRoute exact path="/admin/order/order-pdf/:id" component={OrderPDF}></PrivateRoute>
                <PrivateRoute exact path="/admin/order/order-print/:id" component={OrderPrint}></PrivateRoute>
                <PrivateRoute path="/admin" component={DashboardRoute}></PrivateRoute>

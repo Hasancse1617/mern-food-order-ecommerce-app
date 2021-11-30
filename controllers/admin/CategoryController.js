@@ -1,11 +1,19 @@
 const formidable = require('formidable');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const { rolePermission } = require("../../utils/permission");
 const {body,validationResult} = require('express-validator');
 const Category = require('../../models/Category');
 
 
 module.exports.allCategory = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Category.View');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const page = req.params.page;
     const perPage = 6;
     const skip = (page - 1) * perPage;
@@ -19,6 +27,13 @@ module.exports.allCategory = async(req, res) =>{
 }
 
 module.exports.createCategory = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Category.Create');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+    
     const form = formidable({ multiples: true });
     form.parse(req, async(err, fields, files) =>{
         const {category_name, url} = fields;
@@ -70,6 +85,13 @@ module.exports.createCategory = async(req, res) =>{
 }
 
 module.exports.editCategory = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Category.Edit');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+    
     const id = req.params.id;
     try {
         const response = await Category.findOne({_id:id});
@@ -146,6 +168,13 @@ module.exports.updateCategory = async(req, res) =>{
 }
 
 module.exports.deleteCategory = async (req,res)=>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Category.Delete');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+    
     const id = req.params.id;
     try{
         const {category_image} = await Category.findOne({_id:id});

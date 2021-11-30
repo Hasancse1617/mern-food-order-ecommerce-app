@@ -9,11 +9,14 @@ import Pagination from "../pagination/Pagination";
 import Loader from "../loader/Loader";
 import { deleteAction, fetchBanners, statusAction } from "../../store/actions/BannerAction";
 import { REMOVE_BANNER_MESSAGE, REMOVE_BANNER_REDIRECT, REMOVE_SINGLE_BANNER } from "../../store/types/BannerType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 const Banner = (props) => {
     const dispatch = useDispatch();
     const query = new URLSearchParams(props.location.search);
     const page = query.get('page')
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { banners, message, loading, perPage, count, pageLink } = useSelector((state)=>state.BannerReducer);
     const bannerStatus = () =>{
         $(document).on('click', '.updateBannerStatus', function(){
@@ -33,24 +36,31 @@ const Banner = (props) => {
             confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
             if (result.isConfirmed) {
-              dispatch(deleteAction(id));
+              dispatch(deleteAction(id, user_type));
             }
         })
     }
     useEffect(()=>{
-        dispatch(fetchBanners(page));
+        dispatch(fetchBanners(page, user_type));
     },[page]);
     useEffect(()=>{
         if(message){
           toast.success(message);
           dispatch({type: REMOVE_BANNER_MESSAGE});
           dispatch({type: REMOVE_BANNER_REDIRECT});
-          dispatch(fetchBanners(page));
+          dispatch(fetchBanners(page, user_type));
         }
     },[message]);
     useEffect(()=>{
         dispatch({type: REMOVE_SINGLE_BANNER});
+        return ()=>{
+          dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
+
+    if (unauthorized) {
+      return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

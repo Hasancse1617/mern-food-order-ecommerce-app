@@ -9,10 +9,13 @@ import Loader from "../loader/Loader";
 import $ from 'jquery';
 import { REMOVE_PRODUCT_MESSAGE, REMOVE_PRODUCT_REDIRECT, REMOVE_SINGLE_PRODUCT } from "../../store/types/ProductType";
 import { deleteAction, fetchProducts, statusAction } from "../../store/actions/ProductAction";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
+import Forbidden from "../forbidden/Forbidden";
 
 
 const Product = (props) => {
-
+  
+  const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
   const {message,loading,products,count,perPage,pageLink } = useSelector((state)=> state.ProductReducer);
   const dispatch = useDispatch();
   const query = new URLSearchParams(props.location.search);
@@ -29,7 +32,7 @@ const Product = (props) => {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        dispatch(deleteAction(id));
+        dispatch(deleteAction(id, user_type));
       }
     })
   }
@@ -52,18 +55,24 @@ const Product = (props) => {
         })
       dispatch({type: REMOVE_PRODUCT_MESSAGE});
       dispatch({type: REMOVE_PRODUCT_REDIRECT});
-      dispatch(fetchProducts(page));
+      dispatch(fetchProducts(page, user_type));
     }
   },[message]);
 
   useEffect(()=>{
-      dispatch(fetchProducts(page));
+      dispatch(fetchProducts(page, user_type));
   },[page]);
 
   useEffect(()=>{
     dispatch({type: REMOVE_SINGLE_PRODUCT});
+    return ()=>{
+      dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+    }
   },[]);
 
+  if (unauthorized) {
+    return <Forbidden/>
+  }
     return (
         <div class="content-wrapper">
         <Helmet>

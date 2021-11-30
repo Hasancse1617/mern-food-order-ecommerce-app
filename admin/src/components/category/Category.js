@@ -9,10 +9,13 @@ import Loader from "../loader/Loader";
 import $ from 'jquery';
 import { REMOVE_CATEGORY_MESSAGE, REMOVE_CATEGORY_REDIRECT, REMOVE_SINGLE_CATEGORY } from "../../store/types/CategoryType";
 import { deleteAction, fetchCategories, statusAction } from "../../store/actions/CategoryAction";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 
 const Category = (props) => {
 
+  const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
   const {message,loading,categories,count,perPage,pageLink, category_status, categoryId} = useSelector((state)=> state.CategoryReducer);
   const dispatch = useDispatch();
   const query = new URLSearchParams(props.location.search);
@@ -29,7 +32,7 @@ const Category = (props) => {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        dispatch(deleteAction(id));
+        dispatch(deleteAction(id, user_type));
       }
     })
   }
@@ -52,12 +55,12 @@ const Category = (props) => {
         })
       dispatch({type: REMOVE_CATEGORY_MESSAGE});
       dispatch({type: REMOVE_CATEGORY_REDIRECT});
-      dispatch(fetchCategories(page));
+      dispatch(fetchCategories(page, user_type));
     }
   },[message]);
 
   useEffect(()=>{
-      dispatch(fetchCategories(page));
+      dispatch(fetchCategories(page, user_type));
   },[page]);
   // Category Status Code
   useEffect(()=>{
@@ -70,8 +73,14 @@ const Category = (props) => {
 
   useEffect(()=>{
     dispatch({type: REMOVE_SINGLE_CATEGORY});
+    return ()=>{
+      dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+    }
   },[]);
 
+  if (unauthorized) {
+    return <Forbidden/>
+  }
     return (
         <div class="content-wrapper">
         <Helmet>

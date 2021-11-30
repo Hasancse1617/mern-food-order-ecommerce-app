@@ -3,11 +3,11 @@ const { allCoupon, createCoupon, deleteCoupon, editCoupon, updateCoupon, statusC
 const router = app.Router();
 const auth = require('../../utils/auth');
 
-router.get("/all-coupon/:page", auth, allCoupon);
-router.post("/create-coupon", auth, createCoupon);
-router.get("/edit-coupon/:id", auth, editCoupon);
+router.get("/all-coupon/:user_type/:page", auth, allCoupon);
+router.post("/create-coupon/:user_type", auth, createCoupon);
+router.get("/edit-coupon/:user_type/:id", auth, editCoupon);
 router.post("/update-coupon/:id", auth, updateCoupon);
-router.get("/delete-coupon/:id", auth, deleteCoupon);
+router.get("/delete-coupon/:user_type/:id", auth, deleteCoupon);
 router.post("/status-coupon", auth, statusCoupon);
 
 module.exports = router;

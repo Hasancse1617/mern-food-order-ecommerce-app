@@ -6,15 +6,16 @@ import { NavLink } from "react-router-dom";
 import Swal from 'sweetalert2'
 import Pagination from "../pagination/Pagination";
 import Loader from "../loader/Loader";
-import { REMOVE_UNAUTHORIZED_ACCESS, REMOVE_USER_MESSAGE, REMOVE_USER_REDIRECT } from "../../store/types/UserType";
+import { REMOVE_USER_MESSAGE, REMOVE_USER_REDIRECT } from "../../store/types/UserType";
 import { deleteAction, fetchUsers } from "../../store/actions/UserAction";
-import Forbidden from "./Forbidden";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 
 const AllUser = (props) => {
 
-  const {message,loading,users,count,perPage,pageLink,unauthorized} = useSelector((state)=> state.UserReducer);
-  const {user:{_id, user_type}} = useSelector((state)=> state.AuthReducer);
+  const {message,loading,users,count,perPage,pageLink} = useSelector((state)=> state.UserReducer);
+  const {user:{_id, user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
   const dispatch = useDispatch();
   const query = new URLSearchParams(props.location.search);
   const page = query.get('page')
@@ -30,7 +31,7 @@ const AllUser = (props) => {
       confirmButtonText: 'Yes, delete it!'
     }).then((result) => {
       if (result.isConfirmed) {
-        dispatch(deleteAction(id));
+        dispatch(deleteAction(id,user_type));
       }
     })
   }

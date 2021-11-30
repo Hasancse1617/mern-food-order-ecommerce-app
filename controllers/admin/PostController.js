@@ -2,12 +2,20 @@ const formidable = require('formidable');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const sharp = require('sharp');
+const { rolePermission } = require("../../utils/permission");
 const {body,validationResult} = require('express-validator');
 const Post = require('../../models/Post');
 const Category = require('../../models/Category');
 
 
 module.exports.allPost = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Blog.View');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const page = req.params.page;
     const perPage = 6;
     const skip = (page - 1) * perPage;
@@ -21,6 +29,13 @@ module.exports.allPost = async(req, res) =>{
 }
 
 module.exports.createPost = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Blog.Create');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+    
     const form = formidable({ multiples: true });
     form.parse(req, async(err, fields, files) =>{
         const {title, url, description, category} = fields;
@@ -90,6 +105,13 @@ module.exports.categories = async(req, res) =>{
 }
 
 module.exports.editPost = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Blog.Edit');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try {
         const response = await Post.findOne({_id:id});
@@ -178,6 +200,13 @@ module.exports.updatePost = async(req, res) =>{
 }
 
 module.exports.deletePost = async (req,res)=>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Blog.Delete');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try{
         const {image} = await Post.findOne({_id:id});

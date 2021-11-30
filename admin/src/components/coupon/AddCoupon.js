@@ -7,9 +7,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { createAction } from "../../store/actions/CouponAction";
 import { useEffect } from "react";
 import { REMOVE_COUPON_ERRORS } from "../../store/types/CouponType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 const AddCoupon = (props) => {
     const dispatch = useDispatch();
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { loading, couponErrors, redirect } = useSelector((state)=>state.CouponReducer);
     const [state, setState] = useState({
         code: '',
@@ -30,19 +33,28 @@ const AddCoupon = (props) => {
     }
     const handleSubmit = (e) =>{
         e.preventDefault();
-        dispatch(createAction(state));
+        dispatch(createAction(state, user_type));
     }
     useEffect(()=>{
         if(redirect){
             props.history.push('/admin/coupon/all?page=1');
         }
-        if(couponErrors.length > 0){
+        if(couponErrors && couponErrors.length > 0){
             couponErrors.map((error)=>{
                 toast.error(error.msg);
             });
             dispatch({type: REMOVE_COUPON_ERRORS});
         }
     },[couponErrors,redirect]);
+    useEffect(()=>{
+        return ()=>{
+          dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
+      },[]);
+  
+    if (unauthorized) {
+       return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

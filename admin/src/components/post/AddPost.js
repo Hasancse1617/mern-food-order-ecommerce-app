@@ -5,7 +5,8 @@ import toast, {Toaster} from "react-hot-toast";
 import { NavLink } from "react-router-dom";
 import { createAction, fetchcategories } from "../../store/actions/PostAction";
 import { REMOVE_POST_ERRORS } from "../../store/types/PostType";
-import ProductReducer from "../../store/reducers/ProductReducer";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 class AddPost extends Component{
     constructor(props){
@@ -53,14 +54,18 @@ class AddPost extends Component{
         if(this.props.redirect){
             this.props.history.push('/admin/post/all?page=1');
         }
-        if(this.props.postErrors.length > 0){
+        if(this.props.postErrors && this.props.postErrors.length > 0){
             this.props.postErrors.map((error)=>{
                 toast.error(error.msg);
             });
             this.props.dispatch({type: REMOVE_POST_ERRORS});
         }
     }
+    componentWillUnmount(){
+        this.props.dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+    }
     createPost = (e) =>{
+        const { user } = this.props.AuthReducer;
         e.preventDefault();
         const {title,url,description,image,category} = this.state;
         const formData = new FormData();
@@ -69,11 +74,15 @@ class AddPost extends Component{
         formData.append('description',description);
         formData.append('url', url);
         formData.append('category', category);
-        this.props.dispatch(createAction(formData));
+        this.props.dispatch(createAction(formData, user.user_type));
     }
     render(){
         const { preview, title, url, description } = this.state;
         const categories = this.props.categories;
+        const { unauthorized } = this.props.AuthReducer;
+        if (unauthorized) {
+            return <Forbidden/>
+        }
         return(
             <div class="content-wrapper">
             <Helmet>
@@ -151,6 +160,6 @@ class AddPost extends Component{
 }
 const mapStateToProps = (state) =>{
     const {postErrors, redirect, categories} = state.PostReducer;
-    return{ postErrors, redirect, categories};
+    return{ postErrors, redirect, categories, AuthReducer: state.AuthReducer};
 }
 export default connect(mapStateToProps)(AddPost);

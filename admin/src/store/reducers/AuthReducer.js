@@ -1,5 +1,5 @@
 import jwt_decode from 'jwt-decode';
-import { LOGOUT, REMOVE_LOGIN_ERRORS, REMOVE_LOGIN_LOADER, REMOVE_LOGIN_MESSAGE, SET_LOGIN_ERRORS, SET_LOGIN_LOADER, SET_LOGIN_MESSAGE, SET_TOKEN } from '../types/AuthType';
+import { LOGOUT, REMOVE_LOGIN_ERRORS, REMOVE_LOGIN_LOADER, REMOVE_LOGIN_MESSAGE, REMOVE_UNAUTHORIZED_ACCESS, SET_LOGIN_ERRORS, SET_LOGIN_LOADER, SET_LOGIN_MESSAGE, SET_TOKEN, SET_UNAUTHORIZED_ACCESS } from '../types/AuthType';
 
 
 const initState = {
@@ -8,6 +8,7 @@ const initState = {
 	token: '',
 	user: '',
 	message:'',
+	unauthorized:'',
 }
 
 const verifyToken = (token) => {
@@ -62,6 +63,12 @@ const AuthReducer = (state = initState, action) => {
 	else if (action.type === REMOVE_LOGIN_MESSAGE) {
 		return {...state,message: ''};
 	}
+	else if(action.type === SET_UNAUTHORIZED_ACCESS){
+        return{...state, unauthorized: true };
+    }
+    else if(action.type === REMOVE_UNAUTHORIZED_ACCESS){
+        return{...state, unauthorized: false };
+    }
 	else {
 		return state;
 	}

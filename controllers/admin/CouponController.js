@@ -1,6 +1,14 @@
 const Coupon = require('../../models/Coupon');
+const { rolePermission } = require("../../utils/permission");
 
 module.exports.allCoupon = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Coupon.View');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+    
     const page = req.params.page;
     const perPage = 6;
     const skip = (page - 1) * perPage;
@@ -14,6 +22,13 @@ module.exports.allCoupon = async(req, res) =>{
 }
 
 module.exports.createCoupon = async(req,res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Coupon.Create');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const {  code, amount, expiry_date} = req.body;
     const errors = [];
     if(code === ''){
@@ -52,6 +67,13 @@ module.exports.createCoupon = async(req,res) =>{
 }
 
 module.exports.deleteCoupon = async (req,res)=>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Coupon.Delete');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try{
         const coupon = await Coupon.findByIdAndDelete(id);
@@ -63,6 +85,13 @@ module.exports.deleteCoupon = async (req,res)=>{
 }
 
 module.exports.editCoupon = async(req, res) =>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'Coupon.Edit');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const id = req.params.id;
     try {
         const response = await Coupon.findOne({_id:id});

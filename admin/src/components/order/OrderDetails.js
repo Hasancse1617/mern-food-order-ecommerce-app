@@ -7,14 +7,20 @@ import toast, {Toaster} from "react-hot-toast";
 import { fetchOrder, updateOrderStatus } from "../../store/actions/OrderAction";
 import Loader from "../loader/Loader";
 import { NavLink } from "react-router-dom";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
+import Forbidden from "../forbidden/Forbidden";
 
 const OrderDetails = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
     const [orderstatus, setOrderstatus] = useState('');
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { order, loading } = useSelector((state)=>state.OrderReducer);
     useEffect(()=>{
-        dispatch(fetchOrder(id));
+        dispatch(fetchOrder(id, user_type));
+        return ()=>{
+            dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
     useEffect(()=>{
         if(order.order){
@@ -28,6 +34,9 @@ const OrderDetails = () => {
             return false;
         }
         dispatch(updateOrderStatus({order_id: id, order_status: orderstatus}));
+    }
+    if (unauthorized) {
+        return <Forbidden/>
     }
     return !loading ?(
         <section class="content-wrapper">

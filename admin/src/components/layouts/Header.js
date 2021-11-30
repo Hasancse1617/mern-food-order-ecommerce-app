@@ -8,7 +8,7 @@ const Header = () =>{
         dispatch({type: LOGOUT});
     }
     return(
-        <div>
+        <>
             <nav class="main-header navbar navbar-expand navbar-white navbar-light">
                 {/* <!-- Left navbar links --> */}
                 <ul class="navbar-nav">
@@ -108,7 +108,7 @@ const Header = () =>{
                 </li>
                 </ul>
             </nav>
-        </div>
+        </>
     );
 }
 

@@ -5,10 +5,13 @@ import toast, {Toaster} from "react-hot-toast";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchcategories, createAction } from "../../store/actions/ProductAction";
 import { REMOVE_PRODUCT_ERRORS } from "../../store/types/ProductType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 
 const AddProduct = (props) => {
     const dispatch = useDispatch();
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { productErrors,redirect,categories } = useSelector((state)=> state.ProductReducer);
     const [state,setState] = useState({
         name:'',
@@ -60,14 +63,14 @@ const AddProduct = (props) => {
         formData.append('description', description);
         formData.append('short_desc', short_description);
         formData.append('featured', featured);
-        dispatch(createAction(formData));
+        dispatch(createAction(formData, user_type));
     }
 
     useEffect(()=>{
         if(redirect){
             props.history.push('/admin/product/all?page=1');
         }
-        if(productErrors.length > 0){
+        if(productErrors && productErrors.length > 0){
             productErrors.map((error)=>{
                 toast.error(error.msg);
             });
@@ -76,8 +79,14 @@ const AddProduct = (props) => {
     },[productErrors,redirect]);
     useEffect(()=>{
         dispatch(fetchcategories());
+        return ()=>{
+            dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
 
+    if (unauthorized) {
+        return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

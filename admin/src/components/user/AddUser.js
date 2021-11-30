@@ -5,11 +5,14 @@ import toast, {Toaster} from "react-hot-toast";
 import { useDispatch, useSelector } from 'react-redux';
 import { createAction, fetchRole } from "../../store/actions/UserAction";
 import { REMOVE_USER_ERRORS } from "../../store/types/UserType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 
 const AddUser = (props) => {
     const dispatch = useDispatch();
     const { userErrors,redirect, roles } = useSelector((state)=> state.UserReducer);
+    const { user, unauthorized } = useSelector((state)=> state.AuthReducer);
     const [state,setState] = useState({
         name:'',
         email:'',
@@ -49,23 +52,28 @@ const AddUser = (props) => {
         formData.append('password',password);
         formData.append('c_password',c_password);
         // console.log(user_image);
-        dispatch(createAction(formData));
+        dispatch(createAction(formData, user.user_type));
     }
     useEffect(()=>{
-        dispatch(fetchRole());
+        dispatch(fetchRole(user.user_type));
+        return ()=>{
+            dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
     useEffect(()=>{
         if(redirect){
             props.history.push('/admin/user/all?page=1');
         }
-        if(userErrors.length > 0){
+        if(userErrors && userErrors.length > 0){
             userErrors.map((error)=>{
                 toast.error(error.msg);
             });
             dispatch({type: REMOVE_USER_ERRORS});
         }
     },[userErrors,redirect]);
-
+    if (unauthorized) {
+        return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

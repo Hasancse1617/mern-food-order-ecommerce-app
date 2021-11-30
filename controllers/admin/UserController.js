@@ -7,9 +7,7 @@ const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
 const User = require('../../models/User');
 const { SendEmail } = require('../../utils/email');
-const RoleHasPermission = require('../../models/RoleHasPermission');
-const Role = require('../../models/Role');
-const Permission = require('../../models/Permission');
+const { rolePermission } = require("../../utils/permission");
 require('dotenv').config();
 
 const createToken = (user, expiresToken)=>{
@@ -54,6 +52,13 @@ module.exports.userLogin= async (req, res)=>{
 }
 
 module.exports.createUser = async (req,res)=>{
+    //Role Permission
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'User.Create');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
+
     const form = formidable({ multiples: true });
     form.parse(req, async(err, fields, files) =>{
         const {name, email, user_type, password, c_password} = fields;
@@ -131,11 +136,10 @@ module.exports.createUser = async (req,res)=>{
 }
 
 module.exports.allUser = async(req, res) =>{
+    //Role Permission
     const user_type = req.params.user_type;
-    const role = await Role.findOne({name: user_type});
-    const permission = await Permission.findOne({name: 'Admin.Create'});
-    const permissionRole = await RoleHasPermission.findOne({role_id: role._id});
-    if(!permissionRole.permission_id.includes(permission._id)){
+    const permission = await rolePermission(user_type, 'User.View');
+    if(!permission){
         return res.status(403).json({red_zone: 'Unauthorized access'});
     }
 
@@ -152,6 +156,11 @@ module.exports.allUser = async(req, res) =>{
 }
 
 module.exports.deleteUser = async (req,res)=>{
+    const user_type = req.params.user_type;
+    const permission = await rolePermission(user_type, 'User.Delete');
+    if(!permission){
+        return res.status(403).json({red_zone: 'Unauthorized access'});
+    }
     const id = req.params.id;
     try{
         const {image} = await User.findOne({_id:id});

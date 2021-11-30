@@ -1,29 +1,32 @@
 import axiosInstance from "../../helper/axiosInstance";
 import { SET_PRODUCT_IMAGES, SET_PRODUCT_CATEGORY, SET_PRODUCTS, REMOVE_PRODUCT_ERRORS, REMOVE_PRODUCT_LOADER, SET_SINGLE_PRODUCT, SET_PRODUCT_ERRORS, SET_PRODUCT_LOADER, SET_PRODUCT_MESSAGE, SET_PRODUCT_REDIRECT, SET_PRODUCT_ATTRIBUTES } from "../types/ProductType";
 import $ from 'jquery';
+import { SET_UNAUTHORIZED_ACCESS } from "../types/AuthType";
 
-export const fetchProducts = (page) =>{
+export const fetchProducts = (page, user_type) =>{
       return async(dispatch,getState)=>{
             dispatch({type: SET_PRODUCT_LOADER});
             try {
-                  const {data: {response, count, perPage}} = await axiosInstance.get(`/all-product/${page}`);
+                  const {data: {response, count, perPage}} = await axiosInstance.get(`/all-product/${user_type}/${page}`);
                   dispatch({type: SET_PRODUCTS, payload: {response,count,perPage}});
                   dispatch({type: REMOVE_PRODUCT_LOADER});
             } catch (error) {
                   const {errors} = error.response.data;
                   dispatch({type: REMOVE_PRODUCT_LOADER});
                   dispatch({type: SET_PRODUCT_ERRORS, payload:errors});
-                  console.log(errors);
+                  if(error.response.status === 403){
+                      dispatch({type: SET_UNAUTHORIZED_ACCESS});
+                  }
             }
       }
 }
 
-export const createAction = (productData) =>{
+export const createAction = (productData, user_type) =>{
     return async(dispatch,getState)=>{
         // const {AuthReducer: {token}} = getState();
         dispatch({type: SET_PRODUCT_LOADER});
         try {
-                const { data:{message} } = await axiosInstance.post(`/create-product`,productData); 
+                const { data:{message} } = await axiosInstance.post(`/create-product/${user_type}`,productData); 
                 dispatch({type: REMOVE_PRODUCT_LOADER});
                 dispatch({type: SET_PRODUCT_MESSAGE, payload:message});
                 dispatch({type: SET_PRODUCT_REDIRECT}); 
@@ -32,36 +35,43 @@ export const createAction = (productData) =>{
                 const {errors} = error.response.data;
                 dispatch({type: REMOVE_PRODUCT_LOADER});
                 dispatch({type: SET_PRODUCT_ERRORS, payload:errors});
-                console.log(errors);
+                if(error.response.status === 403){
+                   dispatch({type: SET_UNAUTHORIZED_ACCESS});
+                }
           }
     }
 }
 
-export const deleteAction = (id) =>{
+export const deleteAction = (id, user_type) =>{
       return async (dispatch, getState)=>{
               try {
-              const {data} = await axiosInstance.get(`/delete-product/${id}`);
+              const {data} = await axiosInstance.get(`/delete-product/${user_type}/${id}`);
               dispatch({type:SET_PRODUCT_LOADER});
               dispatch({type:REMOVE_PRODUCT_ERRORS});
               dispatch({type:SET_PRODUCT_MESSAGE, payload: data.message});    
           } catch (error) {
               dispatch({type:SET_PRODUCT_ERRORS, payload: error.response.data.errors});
+              if(error.response.status === 403){
+                  dispatch({type: SET_UNAUTHORIZED_ACCESS});
+              }
           }
         
       };
   }
 
-  export const fetchProduct = (id) =>{
+  export const fetchProduct = (id, user_type) =>{
       return async(dispatch,getState)=>{
             dispatch({type: SET_PRODUCT_LOADER});
             try {
-                  const { data } = await axiosInstance.get(`/edit-product/${id}`);
+                  const { data } = await axiosInstance.get(`/edit-product/${user_type}/${id}`);
                   dispatch({type:SET_SINGLE_PRODUCT, payload: data.response});
                   dispatch({type: REMOVE_PRODUCT_LOADER});
             } catch (error) {
                   const {errors} = error.response.data;
                   dispatch({type: REMOVE_PRODUCT_LOADER});
-                  console.log(errors);
+                  if(error.response.status === 403){
+                        dispatch({type: SET_UNAUTHORIZED_ACCESS});
+                  }
             }
       }
   }

@@ -6,11 +6,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchcategories, updateAction, fetchProduct } from "../../store/actions/ProductAction";
 import { REMOVE_PRODUCT_ERRORS } from "../../store/types/ProductType";
 import Loader from "../loader/Loader";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
+import Forbidden from "../forbidden/Forbidden";
 
 
 const EditProduct = (props) => {
     const dispatch = useDispatch();
     const { id } = useParams();
+    const {user:{ user_type}, unauthorized} = useSelector((state)=> state.AuthReducer);
     const { productErrors,redirect,categories,product,status,loading } = useSelector((state)=> state.ProductReducer);
     const [state,setState] = useState({
         name:'',
@@ -71,7 +74,7 @@ const EditProduct = (props) => {
         if(redirect){
             props.history.push('/admin/product/all?page=1');
         }
-        if(productErrors.length > 0){
+        if(productErrors && productErrors.length > 0){
             productErrors.map((error)=>{
                 toast.error(error.msg);
             });
@@ -93,13 +96,19 @@ const EditProduct = (props) => {
            });
            setPreview(`/images/product_images/${product.product_image}`)
         }
-        dispatch(fetchProduct(id));
+        dispatch(fetchProduct(id, user_type));
     },[status]);
 
     useEffect(()=>{
         dispatch(fetchcategories());
+        return ()=>{
+            dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
 
+    if (unauthorized) {
+        return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         <Helmet>

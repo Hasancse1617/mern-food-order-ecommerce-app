@@ -8,12 +8,15 @@ import { useState } from "react";
 import $ from 'jquery';
 import { REMOVE_USER_ERRORS } from "../../store/types/UserType";
 import Loader from "../loader/Loader";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 const EditRole = (props) => {
     const dispatch = useDispatch();
     const { id } = useParams();
     const [info, setInfo] = useState([]);
     const [role, setRole] = useState('');
+    const { user:{user_type}, unauthorized } = useSelector((state)=> state.AuthReducer);
     const { permissions, userErrors, redirect, singlerole, status, loading } = useSelector((state)=>state.UserReducer);
     const handleCheck = (e) =>{
         const arr = [];
@@ -80,7 +83,10 @@ const EditRole = (props) => {
     }
     useEffect(()=>{
         dispatch(fetchPermission());
-        dispatch(editRole(id));
+        dispatch(editRole(id,user_type));
+        return ()=>{
+            dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
+        }
     },[]);
     useEffect(()=>{
         if(redirect){
@@ -129,6 +135,9 @@ const EditRole = (props) => {
             setInfo([...arr]);
         }
     },[status]);
+    if (unauthorized) {
+        return <Forbidden/>
+    }
     return (
         <div class="content-wrapper">
         {loading?<Loader/>:''}

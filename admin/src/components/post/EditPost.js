@@ -6,6 +6,8 @@ import { NavLink } from "react-router-dom";
 import Loader from "../loader/Loader";
 import { fetchPost, updateAction, fetchcategories } from "../../store/actions/PostAction";
 import { REMOVE_POST_ERRORS, REMOVE_SINGLE_POST } from "../../store/types/PostType";
+import Forbidden from "../forbidden/Forbidden";
+import { REMOVE_UNAUTHORIZED_ACCESS } from "../../store/types/AuthType";
 
 class EditPost extends Component{
     constructor(props){
@@ -47,8 +49,9 @@ class EditPost extends Component{
         }
     }
     componentDidMount = () =>{
+        const { user } = this.props.AuthReducer;
         const id = this.props.match.params.id;
-        this.props.dispatch(fetchPost(id));
+        this.props.dispatch(fetchPost(id, user.user_type));
         this.props.dispatch(fetchcategories());
     }
     componentDidUpdate = () =>{
@@ -66,12 +69,15 @@ class EditPost extends Component{
         if(redirect){
             this.props.history.push('/admin/post/all?page=1');
         }
-        if(postErrors.length > 0){
+        if(postErrors.length && postErrors.length > 0){
             postErrors.map((error)=>{
                 toast.error(error.msg);
             });
             this.props.dispatch({type: REMOVE_POST_ERRORS});
         }
+    }
+    componentWillUnmount(){
+        this.props.dispatch({type: REMOVE_UNAUTHORIZED_ACCESS});
     }
     updatePost = (e) =>{
         e.preventDefault();
@@ -88,6 +94,10 @@ class EditPost extends Component{
     render(){
         const { preview, title, url, description } = this.state;
         const {loading,categories,post} = this.props.state;
+        const { unauthorized } = this.props.AuthReducer;
+        if (unauthorized) {
+            return <Forbidden/>
+        }
         return(
             <div class="content-wrapper">
             <Helmet>
@@ -164,6 +174,6 @@ class EditPost extends Component{
     }
 }
 const mapStateToProps = (state) =>{
-    return{ state: state.PostReducer };
+    return{ state: state.PostReducer, AuthReducer: state.AuthReducer};
 }
 export default connect(mapStateToProps)(EditPost);
